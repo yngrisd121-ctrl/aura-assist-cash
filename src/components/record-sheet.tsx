@@ -111,13 +111,12 @@ export function RecordSheet({
   const num = (key: string) => (form[key] === undefined ? "" : String(form[key]));
 
   const handleSave = () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const payload: Row = {};
     if (form.id) payload.id = form.id;
     const amount = Number(String(form['amount'] ?? "0").replace(",", ".")) || 0;
 
     if (type === "income" || type === "expense" || type === "fixed") {
-      if (!amount) return toast.error("Informe o valor");
+      if (!amount) { toast.error("Informe o valor"); return; }
       Object.assign(payload, {
         kind: type,
         amount,
@@ -128,7 +127,7 @@ export function RecordSheet({
         recurring: type === "fixed",
       });
     } else if (type === "bill") {
-      if (!str("name")) return toast.error("Informe o nome da conta");
+      if (!str("name")) { toast.error("Informe o nome da conta"); return; }
       Object.assign(payload, {
         name: str("name"),
         amount,
@@ -138,7 +137,7 @@ export function RecordSheet({
         category: str("category") || null,
       });
     } else if (type === "debt") {
-      if (!str("name")) return toast.error("Informe o nome da dívida");
+      if (!str("name")) { toast.error("Informe o nome da dívida"); return; }
       Object.assign(payload, {
         name: str("name"),
         total_amount: Number(String(form['total_amount'] ?? "0").replace(",", ".")) || 0,
@@ -148,7 +147,7 @@ export function RecordSheet({
         installments_paid: Number(form['installments_paid'] ?? 0) || 0,
       });
     } else if (type === "goal") {
-      if (!str("name")) return toast.error("Informe o nome da meta");
+      if (!str("name")) { toast.error("Informe o nome da meta"); return; }
       Object.assign(payload, {
         name: str("name"),
         target_amount: Number(String(form['target_amount'] ?? "0").replace(",", ".")) || 0,
@@ -162,7 +161,7 @@ export function RecordSheet({
         date: str("date") || todayISO(),
       });
     } else {
-      if (!str("title")) return toast.error("Informe o lembrete");
+      if (!str("title")) { toast.error("Informe o lembrete"); return; }
       Object.assign(payload, {
         title: str("title"),
         date: str("date") || todayISO(),

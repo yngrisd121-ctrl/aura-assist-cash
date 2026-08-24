@@ -141,7 +141,7 @@ export function RecordSheet({
       Object.assign(payload, {
         name: str("name"),
         total_amount: Number(String(form['total_amount'] ?? "0").replace(",", ".")) || 0,
-        paid_amount: Number(String(form['paid']_amount ?? "0").replace(",", ".")) || 0,
+        paid_amount: Number(String(form['paid_amount'] ?? "0").replace(",", ".")) || 0,
         due_date: str("due_date") || todayISO(),
         installments_total: Number(form['installments_total'] ?? 1) || 1,
         installments_paid: Number(form['installments_paid'] ?? 0) || 0,

@@ -111,9 +111,10 @@ export function RecordSheet({
   const num = (key: string) => (form[key] === undefined ? "" : String(form[key]));
 
   const handleSave = () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const payload: Row = {};
     if (form.id) payload.id = form.id;
-    const amount = Number(String(form.amount ?? "0").replace(",", ".")) || 0;
+    const amount = Number(String(form['amount'] ?? "0").replace(",", ".")) || 0;
 
     if (type === "income" || type === "expense" || type === "fixed") {
       if (!amount) return toast.error("Informe o valor");
@@ -123,7 +124,7 @@ export function RecordSheet({
         description: str("description") || RECORD_TYPES.find((t) => t.key === type)?.label,
         category: str("category") || null,
         date: str("date") || todayISO(),
-        paid: form.paid !== false,
+        paid: form['paid'] !== false,
         recurring: type === "fixed",
       });
     } else if (type === "bill") {
@@ -132,26 +133,26 @@ export function RecordSheet({
         name: str("name"),
         amount,
         due_date: str("due_date") || todayISO(),
-        paid: form.paid === true,
-        recurring: form.recurring === true,
+        paid: form['paid'] === true,
+        recurring: form['recurring'] === true,
         category: str("category") || null,
       });
     } else if (type === "debt") {
       if (!str("name")) return toast.error("Informe o nome da dívida");
       Object.assign(payload, {
         name: str("name"),
-        total_amount: Number(String(form.total_amount ?? "0").replace(",", ".")) || 0,
-        paid_amount: Number(String(form.paid_amount ?? "0").replace(",", ".")) || 0,
+        total_amount: Number(String(form['total_amount'] ?? "0").replace(",", ".")) || 0,
+        paid_amount: Number(String(form['paid']_amount ?? "0").replace(",", ".")) || 0,
         due_date: str("due_date") || todayISO(),
-        installments_total: Number(form.installments_total ?? 1) || 1,
-        installments_paid: Number(form.installments_paid ?? 0) || 0,
+        installments_total: Number(form['installments_total'] ?? 1) || 1,
+        installments_paid: Number(form['installments_paid'] ?? 0) || 0,
       });
     } else if (type === "goal") {
       if (!str("name")) return toast.error("Informe o nome da meta");
       Object.assign(payload, {
         name: str("name"),
-        target_amount: Number(String(form.target_amount ?? "0").replace(",", ".")) || 0,
-        saved_amount: Number(String(form.saved_amount ?? "0").replace(",", ".")) || 0,
+        target_amount: Number(String(form['target_amount'] ?? "0").replace(",", ".")) || 0,
+        saved_amount: Number(String(form['saved_amount'] ?? "0").replace(",", ".")) || 0,
         deadline: str("deadline") || null,
       });
     } else if (type === "note") {
@@ -165,7 +166,7 @@ export function RecordSheet({
       Object.assign(payload, {
         title: str("title"),
         date: str("date") || todayISO(),
-        done: form.done === true,
+        done: form['done'] === true,
       });
     }
 
@@ -277,12 +278,12 @@ export function RecordSheet({
                 </Field>
                 <ToggleRow
                   label="Já foi paga"
-                  checked={form.paid === true}
+                  checked={form['paid'] === true}
                   onChange={(v) => set("paid", v)}
                 />
                 <ToggleRow
                   label="Repete todo mês"
-                  checked={form.recurring === true}
+                  checked={form['recurring'] === true}
                   onChange={(v) => set("recurring", v)}
                 />
               </>
@@ -392,7 +393,7 @@ export function RecordSheet({
                 </Field>
                 <ToggleRow
                   label="Concluído"
-                  checked={form.done === true}
+                  checked={form['done'] === true}
                   onChange={(v) => set("done", v)}
                 />
               </>

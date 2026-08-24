@@ -59,10 +59,11 @@ export function useSaveRecord(table: TableName) {
   return useMutation({
     mutationFn: async (record: Record<string, unknown> & { id?: string }) => {
       const { data: auth } = await supabase.auth.getUser();
-      const payload = { ...record, user_id: auth.user?.id };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const query = supabase.from(table) as any;
       const { error } = record.id
-        ? await supabase.from(table).update(record).eq("id", record.id)
-        : await supabase.from(table).insert(payload);
+        ? await query.update(record).eq("id", record.id)
+        : await query.insert({ ...record, user_id: auth.user?.id });
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [table] }),

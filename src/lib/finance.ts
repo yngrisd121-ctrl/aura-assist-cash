@@ -9,6 +9,7 @@ export type Entry = {
   date: string;
   paid: boolean;
   recurring: boolean;
+  created_at?: string;
 };
 
 export type Bill = {

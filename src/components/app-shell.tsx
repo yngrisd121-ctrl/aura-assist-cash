@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { CalendarDays, Home, Plus, Search, Sparkles } from "lucide-react";
+import { CalendarDays, ClockemptyPlaceholder, Home, Plus, Sparkles } from "lucide-react";
 import { RecordSheet, type RecordType } from "@/components/record-sheet";
 import { cn } from "@/lib/utils";
 

@@ -68,7 +68,7 @@ function Calendario() {
       .forEach((e) =>
         list.push({
           id: `e-${e.id}`,
-          label: e.title || e.category || "Lançamento",
+          label: e.description || e.category || "Lançamento",
           amount: Number(e.amount),
           positive: e.kind === "income",
           onOpen: () => sheet.open(e.kind, { ...e, __type: e.kind }),

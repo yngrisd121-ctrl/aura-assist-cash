@@ -45,7 +45,7 @@ function Buscar() {
       list.push({
         id: `e-${e.id}`,
         type: e.kind,
-        title: e.title || e.category || "Lançamento",
+        title: e.description || e.category || "Lançamento",
         subtitle: formatDayLabel(e.date),
         amount: Number(e.amount),
         raw: e,

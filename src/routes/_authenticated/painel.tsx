@@ -126,7 +126,7 @@ function Painel() {
             className="flex w-full items-center justify-between rounded-2xl border border-border bg-card p-4 text-left shadow-soft active:scale-[0.99]"
           >
             <span>
-              <span className="block text-sm font-medium">{e.title || e.category}</span>
+              <span className="block text-sm font-medium">{e.description || e.category}</span>
               <span className="block text-xs text-muted-foreground">{formatDayLabel(e.date)}</span>
             </span>
             <span

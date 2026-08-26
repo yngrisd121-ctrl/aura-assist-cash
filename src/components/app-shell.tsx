@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { CalendarDays, ClockemptyPlaceholder, Home, Plus, Sparkles } from "lucide-react";
+import { CalendarDays, Clock, Home, Plus, Sparkles } from "lucide-react";
 import { RecordSheet, type RecordType } from "@/components/record-sheet";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,7 @@ export const useRecordSheet = () => useContext(RecordSheetContext);
 const NAV = [
   { to: "/painel", label: "Início", icon: Home },
   { to: "/calendario", label: "Calendário", icon: CalendarDays },
-  { to: "/buscar", label: "Buscar", icon: Search },
+  { to: "/historico", label: "Histórico", icon: Clock },
   { to: "/mais", label: "Mais", icon: Sparkles },
 ] as const;
 

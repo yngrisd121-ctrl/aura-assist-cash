@@ -1,12 +1,11 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ChevronRight } from "lucide-react";
 import { useFinance } from "@/lib/db";
 import { addDaysISO, brl, formatDayLabel, todayISO } from "@/lib/finance";
-import { useRecordSheet } from "@/components/app-shell";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_authenticated/historico")({
+export const Route = createFileRoute("/_authenticated/historico/")({
   head: () => ({
     meta: [
       { title: "Histórico de vendas — Rosé Finance" },
@@ -34,24 +33,14 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: "month", label: "Mês" },
 ];
 
-const hourOf = (createdAt?: string) => {
-  if (!createdAt) return null;
-  const d = new Date(createdAt);
-  if (Number.isNaN(d.getTime())) return null;
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-};
-
 function Historico() {
   const { entries } = useFinance();
-  const sheet = useRecordSheet();
   const today = todayISO();
   const [filter, setFilter] = useState<Filter>("month");
-  const [openDay, setOpenDay] = useState<string | null>(today);
-
-  const sales = useMemo(() => entries.filter((e) => e.kind === "income"), [entries]);
-
   const monthPrefix = today.slice(0, 7);
   const weekStart = addDaysISO(today, -6);
+
+  const sales = useMemo(() => entries.filter((e) => e.kind === "income"), [entries]);
 
   const totals = useMemo(() => {
     const t = { todayAmount: 0, todayCount: 0, monthAmount: 0, monthCount: 0 };
@@ -128,64 +117,27 @@ function Historico() {
           </p>
         )}
 
-        {days.map((day) => {
-          const expanded = openDay === day.date;
-          return (
-            <div
-              key={day.date}
-              className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft"
-            >
-              <button
-                type="button"
-                onClick={() => setOpenDay(expanded ? null : day.date)}
-                className="flex w-full items-center justify-between gap-3 p-4 text-left active:scale-[0.99]"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium">
-                    📅 {formatDayLabel(day.date)}
-                  </span>
-                  <span className="block text-xs text-muted-foreground">
-                    {day.items.length} {day.items.length === 1 ? "venda" : "vendas"}
-                  </span>
-                </span>
-                <span className="flex shrink-0 items-center gap-1">
-                  <span className="text-sm font-semibold text-primary">{brl(day.total)}</span>
-                  {expanded ? (
-                    <ChevronDown className="size-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronRight className="size-4 text-muted-foreground" />
-                  )}
-                </span>
-              </button>
-
-              {expanded && (
-                <ul className="border-t border-border/70 bg-muted/30">
-                  {day.items.map((item) => (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        onClick={() => sheet.open("income", { ...item, __type: "income" })}
-                        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
-                      >
-                        <span className="min-w-0">
-                          <span className="block truncate text-sm">
-                            {item.description || item.category || "Venda"}
-                          </span>
-                          <span className="block text-xs text-muted-foreground">
-                            {hourOf(item.created_at) ?? formatDayLabel(item.date)}
-                          </span>
-                        </span>
-                        <span className="shrink-0 text-sm font-semibold">
-                          {brl(Number(item.amount))}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          );
-        })}
+        {days.map((day) => (
+          <Link
+            key={day.date}
+            to="/historico/$date"
+            params={{ date: day.date }}
+            className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 shadow-soft transition-transform active:scale-[0.99]"
+          >
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-medium">
+                📅 {formatDayLabel(day.date)}
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                {day.items.length} {day.items.length === 1 ? "venda" : "vendas"}
+              </span>
+            </span>
+            <span className="flex shrink-0 items-center gap-1">
+              <span className="text-sm font-semibold text-primary">{brl(day.total)}</span>
+              <ChevronRight className="size-4 text-muted-foreground" />
+            </span>
+          </Link>
+        ))}
       </section>
     </div>
   );

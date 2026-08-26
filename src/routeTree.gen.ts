@@ -14,9 +14,11 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
-import { Route as AuthenticatedHistoricoRouteImport } from './routes/_authenticated/historico'
+import { Route as AuthenticatedHistoricoRouteRouteImport } from './routes/_authenticated/historico.route'
 import { Route as AuthenticatedMaisRouteImport } from './routes/_authenticated/mais'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedHistoricoIndexRouteImport } from './routes/_authenticated/historico/index'
+import { Route as AuthenticatedHistoricoDateRouteImport } from './routes/_authenticated/historico/$date'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -42,11 +44,12 @@ const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
   path: '/calendario',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedHistoricoRoute = AuthenticatedHistoricoRouteImport.update({
-  id: '/historico',
-  path: '/historico',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedHistoricoRouteRoute =
+  AuthenticatedHistoricoRouteRouteImport.update({
+    id: '/historico',
+    path: '/historico',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMaisRoute = AuthenticatedMaisRouteImport.update({
   id: '/mais',
   path: '/mais',
@@ -57,24 +60,39 @@ const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedHistoricoIndexRoute =
+  AuthenticatedHistoricoIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedHistoricoRouteRoute,
+  } as any)
+const AuthenticatedHistoricoDateRoute =
+  AuthenticatedHistoricoDateRouteImport.update({
+    id: '/$date',
+    path: '/$date',
+    getParentRoute: () => AuthenticatedHistoricoRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/historico': typeof AuthenticatedHistoricoRouteRouteWithChildren
   '/calendario': typeof AuthenticatedCalendarioRoute
-  '/historico': typeof AuthenticatedHistoricoRoute
   '/mais': typeof AuthenticatedMaisRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/historico/$date': typeof AuthenticatedHistoricoDateRoute
+  '/historico/': typeof AuthenticatedHistoricoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
-  '/historico': typeof AuthenticatedHistoricoRoute
   '/mais': typeof AuthenticatedMaisRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/historico/$date': typeof AuthenticatedHistoricoDateRoute
+  '/historico': typeof AuthenticatedHistoricoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -82,10 +100,12 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/historico': typeof AuthenticatedHistoricoRouteRouteWithChildren
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
-  '/_authenticated/historico': typeof AuthenticatedHistoricoRoute
   '/_authenticated/mais': typeof AuthenticatedMaisRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/historico/$date': typeof AuthenticatedHistoricoDateRoute
+  '/_authenticated/historico/': typeof AuthenticatedHistoricoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -93,29 +113,34 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
-    | '/calendario'
     | '/historico'
+    | '/calendario'
     | '/mais'
     | '/painel'
+    | '/historico/$date'
+    | '/historico/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/reset-password'
     | '/calendario'
-    | '/historico'
     | '/mais'
     | '/painel'
+    | '/historico/$date'
+    | '/historico'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/reset-password'
-    | '/_authenticated/calendario'
     | '/_authenticated/historico'
+    | '/_authenticated/calendario'
     | '/_authenticated/mais'
     | '/_authenticated/painel'
+    | '/_authenticated/historico/$date'
+    | '/_authenticated/historico/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -166,7 +191,7 @@ declare module '@tanstack/react-router' {
       id: '/_authenticated/historico'
       path: '/historico'
       fullPath: '/historico'
-      preLoaderRoute: typeof AuthenticatedHistoricoRouteImport
+      preLoaderRoute: typeof AuthenticatedHistoricoRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/mais': {
@@ -183,19 +208,50 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/historico/': {
+      id: '/_authenticated/historico/'
+      path: '/'
+      fullPath: '/historico/'
+      preLoaderRoute: typeof AuthenticatedHistoricoIndexRouteImport
+      parentRoute: typeof AuthenticatedHistoricoRouteRoute
+    }
+    '/_authenticated/historico/$date': {
+      id: '/_authenticated/historico/$date'
+      path: '/$date'
+      fullPath: '/historico/$date'
+      preLoaderRoute: typeof AuthenticatedHistoricoDateRouteImport
+      parentRoute: typeof AuthenticatedHistoricoRouteRoute
+    }
   }
 }
 
+interface AuthenticatedHistoricoRouteRouteChildren {
+  AuthenticatedHistoricoDateRoute: typeof AuthenticatedHistoricoDateRoute
+  AuthenticatedHistoricoIndexRoute: typeof AuthenticatedHistoricoIndexRoute
+}
+
+const AuthenticatedHistoricoRouteRouteChildren: AuthenticatedHistoricoRouteRouteChildren =
+  {
+    AuthenticatedHistoricoDateRoute: AuthenticatedHistoricoDateRoute,
+    AuthenticatedHistoricoIndexRoute: AuthenticatedHistoricoIndexRoute,
+  }
+
+const AuthenticatedHistoricoRouteRouteWithChildren =
+  AuthenticatedHistoricoRouteRoute._addFileChildren(
+    AuthenticatedHistoricoRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedHistoricoRouteRoute: typeof AuthenticatedHistoricoRouteRouteWithChildren
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
-  AuthenticatedHistoricoRoute: typeof AuthenticatedHistoricoRoute
   AuthenticatedMaisRoute: typeof AuthenticatedMaisRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedHistoricoRouteRoute:
+    AuthenticatedHistoricoRouteRouteWithChildren,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
-  AuthenticatedHistoricoRoute: AuthenticatedHistoricoRoute,
   AuthenticatedMaisRoute: AuthenticatedMaisRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
 }

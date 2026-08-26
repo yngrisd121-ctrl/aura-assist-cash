@@ -13,7 +13,7 @@ export const useRecordSheet = () => useContext(RecordSheetContext);
 const NAV = [
   { to: "/painel", label: "Início", icon: Home },
   { to: "/calendario", label: "Calendário", icon: CalendarDays },
-  { to: "/buscar", label: "Buscar", icon: Search },
+  { to: "/historico", label: "Histórico", icon: Clock },
   { to: "/mais", label: "Mais", icon: Sparkles },
 ] as const;
 

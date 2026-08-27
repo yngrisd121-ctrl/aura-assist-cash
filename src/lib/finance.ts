@@ -44,7 +44,10 @@ export type Goal = {
   target_amount: number;
   saved_amount: number;
   deadline: string | null;
+  save_amount?: number | null;
+  save_period?: string | null;
 };
+
 
 export type Note = { id: string; title: string; content: string; date: string };
 export type Reminder = { id: string; title: string; date: string; done: boolean };

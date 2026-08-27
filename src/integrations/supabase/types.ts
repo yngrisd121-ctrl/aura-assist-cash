@@ -123,39 +123,54 @@ export type Database = {
         Row: {
           amount: number
           category: string | null
+          client_name: string | null
           created_at: string
           date: string
           description: string
           id: string
           kind: string
+          method: string | null
+          notes: string | null
           paid: boolean
+          quantity: number
           recurring: boolean
+          time_of_day: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           amount?: number
           category?: string | null
+          client_name?: string | null
           created_at?: string
           date?: string
           description?: string
           id?: string
           kind?: string
+          method?: string | null
+          notes?: string | null
           paid?: boolean
+          quantity?: number
           recurring?: boolean
+          time_of_day?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           amount?: number
           category?: string | null
+          client_name?: string | null
           created_at?: string
           date?: string
           description?: string
           id?: string
           kind?: string
+          method?: string | null
+          notes?: string | null
           paid?: boolean
+          quantity?: number
           recurring?: boolean
+          time_of_day?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -167,6 +182,8 @@ export type Database = {
           deadline: string | null
           id: string
           name: string
+          save_amount: number
+          save_period: string
           saved_amount: number
           target_amount: number
           updated_at: string
@@ -177,6 +194,8 @@ export type Database = {
           deadline?: string | null
           id?: string
           name: string
+          save_amount?: number
+          save_period?: string
           saved_amount?: number
           target_amount?: number
           updated_at?: string
@@ -187,6 +206,8 @@ export type Database = {
           deadline?: string | null
           id?: string
           name?: string
+          save_amount?: number
+          save_period?: string
           saved_amount?: number
           target_amount?: number
           updated_at?: string
@@ -230,6 +251,7 @@ export type Database = {
           dark_mode: boolean
           display_name: string | null
           id: string
+          save_percent: number
           updated_at: string
         }
         Insert: {
@@ -237,6 +259,7 @@ export type Database = {
           dark_mode?: boolean
           display_name?: string | null
           id: string
+          save_percent?: number
           updated_at?: string
         }
         Update: {
@@ -244,6 +267,7 @@ export type Database = {
           dark_mode?: boolean
           display_name?: string | null
           id?: string
+          save_percent?: number
           updated_at?: string
         }
         Relationships: []

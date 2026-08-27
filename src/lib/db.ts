@@ -80,3 +80,37 @@ export function useDeleteRecord(table: TableName) {
     onSuccess: () => qc.invalidateQueries({ queryKey: [table] }),
   });
 }
+
+export type Profile = { id: string; display_name: string | null; save_percent: number };
+
+export function useProfile() {
+  return useQuery({
+    queryKey: ["profile"],
+    queryFn: async (): Promise<Profile | null> => {
+      const { data, error } = await supabase.from("profiles").select("*").maybeSingle();
+      if (error) throw error;
+      return (data as unknown as Profile) ?? null;
+    },
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useSavePercent() {
+  const { data } = useProfile();
+  return Number(data?.save_percent ?? 10);
+}
+
+export function useUpdateProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (patch: Record<string, unknown>) => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) throw new Error("Sessão expirada");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const query = supabase.from("profiles") as any;
+      const { error } = await query.update(patch).eq("id", auth.user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["profile"] }),
+  });
+}

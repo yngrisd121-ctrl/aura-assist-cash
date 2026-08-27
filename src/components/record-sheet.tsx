@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 export type RecordType =
   | "income"
   | "expense"
+  | "saving"
   | "fixed"
   | "bill"
   | "debt"
@@ -37,11 +38,12 @@ export type RecordType =
   | "reminder";
 
 export const RECORD_TYPES: { key: RecordType; label: string; emoji: string }[] = [
-  { key: "income", label: "Recebi", emoji: "💰" },
-  { key: "expense", label: "Gastei", emoji: "🛍️" },
+  { key: "income", label: "Entrada", emoji: "💰" },
+  { key: "expense", label: "Gasto", emoji: "💸" },
+  { key: "saving", label: "Guardar", emoji: "💗" },
+  { key: "debt", label: "Dívida", emoji: "💳" },
   { key: "fixed", label: "Gasto fixo", emoji: "🔁" },
   { key: "bill", label: "Conta", emoji: "🏠" },
-  { key: "debt", label: "Dívida", emoji: "💳" },
   { key: "goal", label: "Meta", emoji: "🎯" },
   { key: "note", label: "Anotação", emoji: "📝" },
   { key: "reminder", label: "Lembrete", emoji: "🔔" },
@@ -50,6 +52,7 @@ export const RECORD_TYPES: { key: RecordType; label: string; emoji: string }[] =
 const TABLE: Record<RecordType, TableName> = {
   income: "entries",
   expense: "entries",
+  saving: "entries",
   fixed: "entries",
   bill: "bills",
   debt: "debts",
@@ -58,7 +61,8 @@ const TABLE: Record<RecordType, TableName> = {
   reminder: "reminders",
 };
 
-const CATEGORIES = [
+const INCOME_CATEGORIES = ["Venda", "Serviço", "Comissão", "Presente", "Salário", "Outro"];
+const EXPENSE_CATEGORIES = [
   "Mercado",
   "Casa",
   "Beleza",
@@ -67,11 +71,16 @@ const CATEGORIES = [
   "Lazer",
   "Roupas",
   "Estudos",
-  "Venda",
-  "Salário",
-  "Pix",
   "Outros",
 ];
+const METHODS = ["Pix", "Dinheiro", "Cartão", "Transferência", "Outro"];
+const PERCENTS = [5, 10, 15, 20];
+
+const nowTime = () => {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};
+
 
 type Row = Record<string, unknown> & { id?: string };
 

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useFinance } from "@/lib/db";
@@ -49,6 +49,23 @@ function HistoricoDia() {
 
   const total = useMemo(() => sales.reduce((s, e) => s + Number(e.amount), 0), [sales]);
 
+  const PAGE = 30;
+  const [visible, setVisible] = useState(PAGE);
+  useEffect(() => setVisible(PAGE), [date]);
+  const shown = useMemo(() => sales.slice(0, visible), [sales, visible]);
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || visible >= sales.length) return;
+    const io = new IntersectionObserver(
+      (es) => es[0]?.isIntersecting && setVisible((v) => v + PAGE),
+      { rootMargin: "300px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [visible, sales.length]);
+
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-3">
@@ -73,7 +90,7 @@ function HistoricoDia() {
           </p>
         )}
 
-        {sales.map((item) => (
+        {shown.map((item) => (
           <button
             key={item.id}
             type="button"
@@ -93,6 +110,12 @@ function HistoricoDia() {
             </span>
           </button>
         ))}
+
+        {visible < sales.length && (
+          <div ref={sentinelRef} className="py-3 text-center text-xs text-muted-foreground">
+            Carregando mais vendas…
+          </div>
+        )}
       </section>
     </div>
   );

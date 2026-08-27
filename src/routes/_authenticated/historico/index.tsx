@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import { useFinance } from "@/lib/db";
@@ -81,6 +81,23 @@ function Historico() {
       }));
   }, [sales, filter, today, weekStart, monthPrefix]);
 
+  const PAGE = 20;
+  const [visible, setVisible] = useState(PAGE);
+  useEffect(() => setVisible(PAGE), [filter]);
+  const shownDays = useMemo(() => days.slice(0, visible), [days, visible]);
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || visible >= days.length) return;
+    const io = new IntersectionObserver(
+      (es) => es[0]?.isIntersecting && setVisible((v) => v + PAGE),
+      { rootMargin: "300px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [visible, days.length]);
+
   return (
     <div className="space-y-5">
       <h1 className="font-display text-2xl">Histórico</h1>
@@ -117,7 +134,7 @@ function Historico() {
           </p>
         )}
 
-        {days.map((day) => (
+        {shownDays.map((day) => (
           <Link
             key={day.date}
             to="/historico/$date"
@@ -138,6 +155,12 @@ function Historico() {
             </span>
           </Link>
         ))}
+
+        {visible < days.length && (
+          <div ref={sentinelRef} className="py-3 text-center text-xs text-muted-foreground">
+            Carregando mais dias…
+          </div>
+        )}
       </section>
     </div>
   );

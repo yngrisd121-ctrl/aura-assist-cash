@@ -1,4 +1,4 @@
-export type EntryKind = "income" | "expense" | "fixed";
+export type EntryKind = "income" | "expense" | "fixed" | "saving";
 
 export type Entry = {
   id: string;
@@ -10,7 +10,13 @@ export type Entry = {
   paid: boolean;
   recurring: boolean;
   created_at?: string;
+  time_of_day?: string | null;
+  method?: string | null;
+  client_name?: string | null;
+  notes?: string | null;
+  quantity?: number | null;
 };
+
 
 export type Bill = {
   id: string;

@@ -90,7 +90,7 @@ function HistoricoDia() {
           </p>
         )}
 
-        {sales.map((item) => (
+        {shown.map((item) => (
           <button
             key={item.id}
             type="button"
@@ -110,6 +110,12 @@ function HistoricoDia() {
             </span>
           </button>
         ))}
+
+        {visible < sales.length && (
+          <div ref={sentinelRef} className="py-3 text-center text-xs text-muted-foreground">
+            Carregando mais vendas…
+          </div>
+        )}
       </section>
     </div>
   );

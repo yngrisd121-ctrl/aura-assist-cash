@@ -134,7 +134,7 @@ function Historico() {
           </p>
         )}
 
-        {days.map((day) => (
+        {shownDays.map((day) => (
           <Link
             key={day.date}
             to="/historico/$date"
@@ -155,6 +155,12 @@ function Historico() {
             </span>
           </Link>
         ))}
+
+        {visible < days.length && (
+          <div ref={sentinelRef} className="py-3 text-center text-xs text-muted-foreground">
+            Carregando mais dias…
+          </div>
+        )}
       </section>
     </div>
   );

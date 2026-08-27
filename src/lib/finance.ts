@@ -252,3 +252,111 @@ export function autoReminders(bills: Bill[], debts: Debt[], goals: Goal[]) {
     );
   return items.sort((a, b) => a.date.localeCompare(b.date));
 }
+
+// ===== Estatísticas do dia / período =====
+
+export type DayStats = {
+  received: number;
+  spent: number;
+  saved: number;
+  available: number;
+  incomeCount: number;
+  salesCount: number;
+};
+
+export function dayStats(entries: Entry[], date: string): DayStats {
+  return periodStats(entries.filter((e) => e.date === date));
+}
+
+export function periodStats(list: Entry[]): DayStats {
+  const s: DayStats = {
+    received: 0,
+    spent: 0,
+    saved: 0,
+    available: 0,
+    incomeCount: 0,
+    salesCount: 0,
+  };
+  list.forEach((e) => {
+    const amount = Number(e.amount) || 0;
+    if (e.kind === "income") {
+      s.received += amount;
+      s.incomeCount += 1;
+      s.salesCount += Number(e.quantity ?? 1) || 1;
+    } else if (e.kind === "saving") {
+      s.saved += amount;
+    } else {
+      s.spent += amount;
+    }
+  });
+  s.available = s.received - s.spent - s.saved;
+  return s;
+}
+
+export const inMonth = (iso: string, prefix: string) => iso.startsWith(prefix);
+
+export const monthPrefixOf = (iso: string) => iso.slice(0, 7);
+
+export function closingMessage(s: DayStats) {
+  if (!s.received && !s.spent && !s.saved) {
+    return "Ainda não há movimentações hoje. Toque no + para registrar. 🌷";
+  }
+  const parts = [`Você recebeu ${brl(s.received)} em ${s.salesCount} venda(s) hoje.`];
+  if (s.spent) parts.push(`Gastou ${brl(s.spent)}.`);
+  if (s.saved) parts.push(`Guardou ${brl(s.saved)}.`);
+  parts.push(`Seu disponível ficou em ${brl(s.available)}. 💕`);
+  return parts.join(" ");
+}
+
+export type FullStats = {
+  bestDay: { date: string; amount: number } | null;
+  avgPerDay: number;
+  avgPerSale: number;
+  biggest: number;
+  totalReceived: number;
+  totalSales: number;
+  totalSaved: number;
+  totalSpent: number;
+  savedPercent: number;
+  balance: number;
+};
+
+export function buildStats(list: Entry[]): FullStats {
+  const base = periodStats(list);
+  const byDay = new Map<string, number>();
+  let biggest = 0;
+  list
+    .filter((e) => e.kind === "income")
+    .forEach((e) => {
+      const amount = Number(e.amount) || 0;
+      biggest = Math.max(biggest, amount);
+      byDay.set(e.date, (byDay.get(e.date) ?? 0) + amount);
+    });
+  let bestDay: { date: string; amount: number } | null = null;
+  byDay.forEach((amount, date) => {
+    if (!bestDay || amount > bestDay.amount) bestDay = { date, amount };
+  });
+  const days = byDay.size || 1;
+  return {
+    bestDay,
+    avgPerDay: base.received / days,
+    avgPerSale: base.salesCount ? base.received / base.salesCount : 0,
+    biggest,
+    totalReceived: base.received,
+    totalSales: base.salesCount,
+    totalSaved: base.saved,
+    totalSpent: base.spent,
+    savedPercent: base.received ? (base.saved / base.received) * 100 : 0,
+    balance: base.available,
+  };
+}
+
+export function goalPace(goal: Goal) {
+  const missing = Math.max(Number(goal.target_amount) - Number(goal.saved_amount), 0);
+  if (!goal.deadline) return { missing, perDay: 0, days: 0 };
+  const days = Math.max(
+    1,
+    Math.ceil((parseISO(goal.deadline).getTime() - Date.now()) / 86_400_000),
+  );
+  return { missing, perDay: missing / days, days };
+}

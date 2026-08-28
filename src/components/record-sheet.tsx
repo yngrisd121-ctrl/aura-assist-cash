@@ -22,9 +22,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useDeleteRecord, useSaveRecord, type TableName } from "@/lib/db";
-import { todayISO } from "@/lib/finance";
+import { useDeleteRecord, useSaveRecord, useSavePercent, type TableName } from "@/lib/db";
+import { brl, todayISO } from "@/lib/finance";
 import { cn } from "@/lib/utils";
+
 
 export type RecordType =
   | "income"

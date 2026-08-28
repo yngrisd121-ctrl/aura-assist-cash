@@ -198,12 +198,28 @@ export function RecordSheet({
 
     save.mutate(payload, {
       onSuccess: () => {
-        toast.success(editing ? "Alterações salvas" : "Registrado!");
+        if (type === "income" && !editing && autoSave && suggested > 0) {
+          saveEntry.mutate({
+            kind: "saving",
+            amount: suggested,
+            description: `Guardei ${percent}% da entrada`,
+            category: "Guardar",
+            date: str("date") || todayISO(),
+            time_of_day: str("time_of_day") || null,
+            paid: true,
+            recurring: false,
+            quantity: 1,
+          });
+          toast.success(`Registrado! ${brl(suggested)} guardado 💗`);
+        } else {
+          toast.success(editing ? "Alterações salvas" : "Registrado!");
+        }
         onOpenChange(false);
       },
       onError: (e: unknown) => toast.error((e as Error).message),
     });
   };
+
 
   return (
     <>

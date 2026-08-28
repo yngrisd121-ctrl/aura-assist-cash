@@ -22,9 +22,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useDeleteRecord, useSaveRecord, type TableName } from "@/lib/db";
-import { todayISO } from "@/lib/finance";
+import { useDeleteRecord, useSaveRecord, useSavePercent, type TableName } from "@/lib/db";
+import { brl, todayISO } from "@/lib/finance";
 import { cn } from "@/lib/utils";
+
 
 export type RecordType =
   | "income"
@@ -98,33 +99,42 @@ export function RecordSheet({
   const [type, setType] = useState<RecordType>(initialType);
   const [form, setForm] = useState<Row>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const defaultPercent = useSavePercent();
+  const [percent, setPercent] = useState(defaultPercent);
+  const [autoSave, setAutoSave] = useState(false);
 
   const save = useSaveRecord(TABLE[type]);
+  const saveEntry = useSaveRecord("entries");
   const remove = useDeleteRecord(TABLE[type]);
   const editing = Boolean(record?.id);
 
   useEffect(() => {
     if (!open) return;
+    setPercent(defaultPercent);
+    setAutoSave(false);
     if (record) {
       setType(record.__type);
       const { __type: _ignored, ...rest } = record;
       setForm(rest);
     } else {
       setType(initialType);
-      setForm({ date: todayISO(), due_date: todayISO() });
+      setForm({ date: todayISO(), due_date: todayISO(), time_of_day: nowTime() });
     }
-  }, [open, record, initialType]);
+  }, [open, record, initialType, defaultPercent]);
 
   const set = (key: string, value: unknown) => setForm((f) => ({ ...f, [key]: value }));
   const str = (key: string) => (form[key] === undefined || form[key] === null ? "" : String(form[key]));
   const num = (key: string) => (form[key] === undefined ? "" : String(form[key]));
 
+  const amountValue = Number(String(form['amount'] ?? "0").replace(",", ".")) || 0;
+  const suggested = Math.round(amountValue * percent) / 100;
+
   const handleSave = () => {
     const payload: Row = {};
     if (form.id) payload.id = form.id;
-    const amount = Number(String(form['amount'] ?? "0").replace(",", ".")) || 0;
+    const amount = amountValue;
 
-    if (type === "income" || type === "expense" || type === "fixed") {
+    if (type === "income" || type === "expense" || type === "fixed" || type === "saving") {
       if (!amount) { toast.error("Informe o valor"); return; }
       Object.assign(payload, {
         kind: type,
@@ -132,7 +142,13 @@ export function RecordSheet({
         description: str("description") || RECORD_TYPES.find((t) => t.key === type)?.label,
         category: str("category") || null,
         date: str("date") || todayISO(),
+        time_of_day: str("time_of_day") || null,
+        method: str("method") || null,
+        client_name: str("client_name") || null,
+        notes: str("notes") || null,
+        quantity: Math.max(1, Number(form['quantity'] ?? 1) || 1),
         paid: form['paid'] !== false,
+
         recurring: type === "fixed",
       });
     } else if (type === "bill") {
@@ -162,7 +178,10 @@ export function RecordSheet({
         target_amount: Number(String(form['target_amount'] ?? "0").replace(",", ".")) || 0,
         saved_amount: Number(String(form['saved_amount'] ?? "0").replace(",", ".")) || 0,
         deadline: str("deadline") || null,
+        save_amount: Number(String(form['save_amount'] ?? "0").replace(",", ".")) || 0,
+        save_period: str("save_period") || "month",
       });
+
     } else if (type === "note") {
       Object.assign(payload, {
         title: str("title") || "Anotação",
@@ -180,12 +199,28 @@ export function RecordSheet({
 
     save.mutate(payload, {
       onSuccess: () => {
-        toast.success(editing ? "Alterações salvas" : "Registrado!");
+        if (type === "income" && !editing && autoSave && suggested > 0) {
+          saveEntry.mutate({
+            kind: "saving",
+            amount: suggested,
+            description: `Guardei ${percent}% da entrada`,
+            category: "Guardar",
+            date: str("date") || todayISO(),
+            time_of_day: str("time_of_day") || null,
+            paid: true,
+            recurring: false,
+            quantity: 1,
+          });
+          toast.success(`Registrado! ${brl(suggested)} guardado 💗`);
+        } else {
+          toast.success(editing ? "Alterações salvas" : "Registrado!");
+        }
         onOpenChange(false);
       },
       onError: (e: unknown) => toast.error((e as Error).message),
     });
   };
+
 
   return (
     <>
@@ -220,7 +255,7 @@ export function RecordSheet({
           )}
 
           <div className="mt-4 space-y-4">
-            {(type === "income" || type === "expense" || type === "fixed") && (
+            {(type === "income" || type === "expense" || type === "fixed" || type === "saving") && (
               <>
                 <Field label="Valor">
                   <Input
@@ -232,6 +267,38 @@ export function RecordSheet({
                     onChange={(e) => set("amount", e.target.value)}
                   />
                 </Field>
+
+                {type === "income" && amountValue > 0 && (
+                  <div className="rounded-2xl border border-border bg-gradient-soft p-4">
+                    <p className="text-xs text-muted-foreground">
+                      💗 Guardar {percent}% → <strong>{brl(suggested)}</strong> · Disponível{" "}
+                      <strong>{brl(amountValue - suggested)}</strong>
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {PERCENTS.map((p) => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setPercent(p)}
+                          className={cn(
+                            "rounded-full border px-3 py-1 text-xs font-medium",
+                            percent === p
+                              ? "border-transparent bg-primary text-primary-foreground"
+                              : "border-border bg-card text-muted-foreground",
+                          )}
+                        >
+                          {p}%
+                        </button>
+                      ))}
+                      <ToggleChip
+                        active={autoSave}
+                        onClick={() => setAutoSave((v) => !v)}
+                        label={autoSave ? "Guardando ✓" : "Guardar junto"}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <Field label="Descrição">
                   <Input
                     placeholder="Ex.: Venda, aluguel, mercado"
@@ -239,9 +306,10 @@ export function RecordSheet({
                     onChange={(e) => set("description", e.target.value)}
                   />
                 </Field>
+
                 <Field label="Categoria">
                   <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
-                    {CATEGORIES.map((c) => (
+                    {(type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map((c) => (
                       <button
                         key={c}
                         type="button"
@@ -258,11 +326,73 @@ export function RecordSheet({
                     ))}
                   </div>
                 </Field>
-                <Field label="Data">
-                  <Input type="date" value={str("date")} onChange={(e) => set("date", e.target.value)} />
-                </Field>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Data">
+                    <Input
+                      type="date"
+                      value={str("date")}
+                      onChange={(e) => set("date", e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Horário">
+                    <Input
+                      type="time"
+                      value={str("time_of_day")}
+                      onChange={(e) => set("time_of_day", e.target.value)}
+                    />
+                  </Field>
+                </div>
+
+                {type === "income" && (
+                  <>
+                    <Field label="Forma de recebimento">
+                      <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
+                        {METHODS.map((mth) => (
+                          <button
+                            key={mth}
+                            type="button"
+                            onClick={() => set("method", str("method") === mth ? "" : mth)}
+                            className={cn(
+                              "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium",
+                              str("method") === mth
+                                ? "border-transparent bg-accent text-accent-foreground"
+                                : "border-border text-muted-foreground",
+                            )}
+                          >
+                            {mth}
+                          </button>
+                        ))}
+                      </div>
+                    </Field>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Cliente (opcional)">
+                        <Input
+                          value={str("client_name")}
+                          onChange={(e) => set("client_name", e.target.value)}
+                        />
+                      </Field>
+                      <Field label="Qtd. de vendas">
+                        <Input
+                          inputMode="numeric"
+                          placeholder="1"
+                          value={num("quantity")}
+                          onChange={(e) => set("quantity", e.target.value)}
+                        />
+                      </Field>
+                    </div>
+                    <Field label="Observação">
+                      <Textarea
+                        rows={2}
+                        value={str("notes")}
+                        onChange={(e) => set("notes", e.target.value)}
+                      />
+                    </Field>
+                  </>
+                )}
               </>
             )}
+
 
             {type === "bill" && (
               <>
@@ -370,6 +500,40 @@ export function RecordSheet({
                     onChange={(e) => set("deadline", e.target.value)}
                   />
                 </Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Quero guardar">
+                    <Input
+                      inputMode="decimal"
+                      placeholder="0,00"
+                      value={num("save_amount")}
+                      onChange={(e) => set("save_amount", e.target.value)}
+                    />
+                  </Field>
+                  <Field label="A cada">
+                    <div className="flex gap-1.5">
+                      {[
+                        { k: "day", l: "Dia" },
+                        { k: "week", l: "Semana" },
+                        { k: "month", l: "Mês" },
+                      ].map((p) => (
+                        <button
+                          key={p.k}
+                          type="button"
+                          onClick={() => set("save_period", p.k)}
+                          className={cn(
+                            "flex-1 rounded-full border px-2 py-2 text-xs font-medium",
+                            (str("save_period") || "month") === p.k
+                              ? "border-transparent bg-accent text-accent-foreground"
+                              : "border-border text-muted-foreground",
+                          )}
+                        >
+                          {p.l}
+                        </button>
+                      ))}
+                    </div>
+                  </Field>
+                </div>
+
               </>
             )}
 
@@ -476,5 +640,30 @@ function ToggleRow({
       <span className="text-sm">{label}</span>
       <Switch checked={checked} onCheckedChange={onChange} />
     </div>
+  );
+}
+
+function ToggleChip({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+        active
+          ? "border-transparent bg-gradient-rose text-primary-foreground"
+          : "border-border bg-card text-muted-foreground",
+      )}
+    >
+      {label}
+    </button>
   );
 }

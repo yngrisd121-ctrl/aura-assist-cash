@@ -220,7 +220,7 @@ export function RecordSheet({
           )}
 
           <div className="mt-4 space-y-4">
-            {(type === "income" || type === "expense" || type === "fixed") && (
+            {(type === "income" || type === "expense" || type === "fixed" || type === "saving") && (
               <>
                 <Field label="Valor">
                   <Input
@@ -232,6 +232,38 @@ export function RecordSheet({
                     onChange={(e) => set("amount", e.target.value)}
                   />
                 </Field>
+
+                {type === "income" && amountValue > 0 && (
+                  <div className="rounded-2xl border border-border bg-gradient-soft p-4">
+                    <p className="text-xs text-muted-foreground">
+                      💗 Guardar {percent}% → <strong>{brl(suggested)}</strong> · Disponível{" "}
+                      <strong>{brl(amountValue - suggested)}</strong>
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {PERCENTS.map((p) => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setPercent(p)}
+                          className={cn(
+                            "rounded-full border px-3 py-1 text-xs font-medium",
+                            percent === p
+                              ? "border-transparent bg-primary text-primary-foreground"
+                              : "border-border bg-card text-muted-foreground",
+                          )}
+                        >
+                          {p}%
+                        </button>
+                      ))}
+                      <ToggleChip
+                        active={autoSave}
+                        onClick={() => setAutoSave((v) => !v)}
+                        label={autoSave ? "Guardando ✓" : "Guardar junto"}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <Field label="Descrição">
                   <Input
                     placeholder="Ex.: Venda, aluguel, mercado"
@@ -239,9 +271,10 @@ export function RecordSheet({
                     onChange={(e) => set("description", e.target.value)}
                   />
                 </Field>
+
                 <Field label="Categoria">
                   <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
-                    {CATEGORIES.map((c) => (
+                    {(type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map((c) => (
                       <button
                         key={c}
                         type="button"
@@ -258,11 +291,73 @@ export function RecordSheet({
                     ))}
                   </div>
                 </Field>
-                <Field label="Data">
-                  <Input type="date" value={str("date")} onChange={(e) => set("date", e.target.value)} />
-                </Field>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Data">
+                    <Input
+                      type="date"
+                      value={str("date")}
+                      onChange={(e) => set("date", e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Horário">
+                    <Input
+                      type="time"
+                      value={str("time_of_day")}
+                      onChange={(e) => set("time_of_day", e.target.value)}
+                    />
+                  </Field>
+                </div>
+
+                {type === "income" && (
+                  <>
+                    <Field label="Forma de recebimento">
+                      <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
+                        {METHODS.map((mth) => (
+                          <button
+                            key={mth}
+                            type="button"
+                            onClick={() => set("method", str("method") === mth ? "" : mth)}
+                            className={cn(
+                              "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium",
+                              str("method") === mth
+                                ? "border-transparent bg-accent text-accent-foreground"
+                                : "border-border text-muted-foreground",
+                            )}
+                          >
+                            {mth}
+                          </button>
+                        ))}
+                      </div>
+                    </Field>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Cliente (opcional)">
+                        <Input
+                          value={str("client_name")}
+                          onChange={(e) => set("client_name", e.target.value)}
+                        />
+                      </Field>
+                      <Field label="Qtd. de vendas">
+                        <Input
+                          inputMode="numeric"
+                          placeholder="1"
+                          value={num("quantity")}
+                          onChange={(e) => set("quantity", e.target.value)}
+                        />
+                      </Field>
+                    </div>
+                    <Field label="Observação">
+                      <Textarea
+                        rows={2}
+                        value={str("notes")}
+                        onChange={(e) => set("notes", e.target.value)}
+                      />
+                    </Field>
+                  </>
+                )}
               </>
             )}
+
 
             {type === "bill" && (
               <>

@@ -98,33 +98,42 @@ export function RecordSheet({
   const [type, setType] = useState<RecordType>(initialType);
   const [form, setForm] = useState<Row>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const defaultPercent = useSavePercent();
+  const [percent, setPercent] = useState(defaultPercent);
+  const [autoSave, setAutoSave] = useState(false);
 
   const save = useSaveRecord(TABLE[type]);
+  const saveEntry = useSaveRecord("entries");
   const remove = useDeleteRecord(TABLE[type]);
   const editing = Boolean(record?.id);
 
   useEffect(() => {
     if (!open) return;
+    setPercent(defaultPercent);
+    setAutoSave(false);
     if (record) {
       setType(record.__type);
       const { __type: _ignored, ...rest } = record;
       setForm(rest);
     } else {
       setType(initialType);
-      setForm({ date: todayISO(), due_date: todayISO() });
+      setForm({ date: todayISO(), due_date: todayISO(), time_of_day: nowTime() });
     }
-  }, [open, record, initialType]);
+  }, [open, record, initialType, defaultPercent]);
 
   const set = (key: string, value: unknown) => setForm((f) => ({ ...f, [key]: value }));
   const str = (key: string) => (form[key] === undefined || form[key] === null ? "" : String(form[key]));
   const num = (key: string) => (form[key] === undefined ? "" : String(form[key]));
 
+  const amountValue = Number(String(form['amount'] ?? "0").replace(",", ".")) || 0;
+  const suggested = Math.round(amountValue * percent) / 100;
+
   const handleSave = () => {
     const payload: Row = {};
     if (form.id) payload.id = form.id;
-    const amount = Number(String(form['amount'] ?? "0").replace(",", ".")) || 0;
+    const amount = amountValue;
 
-    if (type === "income" || type === "expense" || type === "fixed") {
+    if (type === "income" || type === "expense" || type === "fixed" || type === "saving") {
       if (!amount) { toast.error("Informe o valor"); return; }
       Object.assign(payload, {
         kind: type,
@@ -132,7 +141,13 @@ export function RecordSheet({
         description: str("description") || RECORD_TYPES.find((t) => t.key === type)?.label,
         category: str("category") || null,
         date: str("date") || todayISO(),
+        time_of_day: str("time_of_day") || null,
+        method: str("method") || null,
+        client_name: str("client_name") || null,
+        notes: str("notes") || null,
+        quantity: Math.max(1, Number(form['quantity'] ?? 1) || 1),
         paid: form['paid'] !== false,
+
         recurring: type === "fixed",
       });
     } else if (type === "bill") {

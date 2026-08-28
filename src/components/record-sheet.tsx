@@ -500,6 +500,40 @@ export function RecordSheet({
                     onChange={(e) => set("deadline", e.target.value)}
                   />
                 </Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Quero guardar">
+                    <Input
+                      inputMode="decimal"
+                      placeholder="0,00"
+                      value={num("save_amount")}
+                      onChange={(e) => set("save_amount", e.target.value)}
+                    />
+                  </Field>
+                  <Field label="A cada">
+                    <div className="flex gap-1.5">
+                      {[
+                        { k: "day", l: "Dia" },
+                        { k: "week", l: "Semana" },
+                        { k: "month", l: "Mês" },
+                      ].map((p) => (
+                        <button
+                          key={p.k}
+                          type="button"
+                          onClick={() => set("save_period", p.k)}
+                          className={cn(
+                            "flex-1 rounded-full border px-2 py-2 text-xs font-medium",
+                            (str("save_period") || "month") === p.k
+                              ? "border-transparent bg-accent text-accent-foreground"
+                              : "border-border text-muted-foreground",
+                          )}
+                        >
+                          {p.l}
+                        </button>
+                      ))}
+                    </div>
+                  </Field>
+                </div>
+
               </>
             )}
 

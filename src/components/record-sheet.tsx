@@ -177,7 +177,10 @@ export function RecordSheet({
         target_amount: Number(String(form['target_amount'] ?? "0").replace(",", ".")) || 0,
         saved_amount: Number(String(form['saved_amount'] ?? "0").replace(",", ".")) || 0,
         deadline: str("deadline") || null,
+        save_amount: Number(String(form['save_amount'] ?? "0").replace(",", ".")) || 0,
+        save_period: str("save_period") || "month",
       });
+
     } else if (type === "note") {
       Object.assign(payload, {
         title: str("title") || "Anotação",

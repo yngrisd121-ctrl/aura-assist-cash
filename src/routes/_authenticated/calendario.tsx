@@ -202,6 +202,21 @@ function Calendario() {
 
       <section className="space-y-2">
         <h2 className="font-display text-lg">{formatDayLabel(selected)}</h2>
+        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-gradient-soft p-4 text-xs">
+          <p>
+            📥 Entradas <strong className="text-primary">{brl(daySummary.received)}</strong>
+          </p>
+          <p>
+            📤 Gastos <strong>{brl(daySummary.spent)}</strong>
+          </p>
+          <p>
+            💗 Guardado <strong>{brl(daySummary.saved)}</strong>
+          </p>
+          <p>
+            💰 Disponível <strong className="text-primary">{brl(daySummary.available)}</strong>
+          </p>
+        </div>
+
         {dayItems.length === 0 && (
           <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
             Nenhum registro neste dia.

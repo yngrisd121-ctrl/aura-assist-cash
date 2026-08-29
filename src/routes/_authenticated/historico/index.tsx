@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import { useFinance } from "@/lib/db";
-import { addDaysISO, brl, formatDayLabel, todayISO } from "@/lib/finance";
+import { addDaysISO, brl, buildStats, formatDayLabel, todayISO } from "@/lib/finance";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/historico/")({

@@ -233,6 +233,13 @@ function Mais() {
                 </span>
               </div>
               <Progress value={pct} className="mt-2 h-2" />
+              <p className="mt-1.5 text-[11px] text-muted-foreground">
+                Faltam {brl(goalPace(g).missing)}
+                {goalPace(g).perDay > 0
+                  ? ` · guarde ${brl(goalPace(g).perDay)} por dia até o prazo`
+                  : ""}
+              </p>
+
             </button>
           );
         })}

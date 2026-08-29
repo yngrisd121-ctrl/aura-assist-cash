@@ -29,8 +29,9 @@ type DayItem = {
 };
 
 function Calendario() {
-  const { entries, bills } = useFinance();
+  const { entries, bills, notes, reminders } = useFinance();
   const sheet = useRecordSheet();
+
   const today = todayISO();
   const [cursor, setCursor] = useState(() => {
     const [y, m] = today.split("-").map(Number);

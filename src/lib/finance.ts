@@ -141,7 +141,9 @@ export function buildSnapshot(
     upcomingBills,
     upcomingDebts,
     goalTarget: goalSlice,
-    available: received - spent - upcomingBills - upcomingDebts - goalSlice,
+    available:
+      received - spent - savedInRange - upcomingBills - upcomingDebts - goalSlice,
+
   };
 }
 

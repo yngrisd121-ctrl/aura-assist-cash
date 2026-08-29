@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useFinance } from "@/lib/db";
-import { brl, formatDayLabel } from "@/lib/finance";
+import { brl, closingMessage, dayStats, formatDayLabel } from "@/lib/finance";
 import { useRecordSheet } from "@/components/app-shell";
 import { cn } from "@/lib/utils";
 
@@ -29,12 +29,14 @@ export const Route = createFileRoute("/_authenticated/historico/$date")({
   component: HistoricoDia,
 });
 
-const hourOf = (createdAt?: string) => {
-  if (!createdAt) return null;
-  const d = new Date(createdAt);
-  if (Number.isNaN(d.getTime())) return null;
+const hourOf = (e: { time_of_day?: string | null; created_at?: string }) => {
+  if (e.time_of_day) return e.time_of_day.slice(0, 5);
+  if (!e.created_at) return "—";
+  const d = new Date(e.created_at);
+  if (Number.isNaN(d.getTime())) return "—";
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 };
+
 
 function HistoricoDia() {
   const { date } = Route.useParams();
@@ -47,7 +49,7 @@ function HistoricoDia() {
       .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""));
   }, [entries, date]);
 
-  const total = useMemo(() => sales.reduce((s, e) => s + Number(e.amount), 0), [sales]);
+  const stats = useMemo(() => dayStats(entries, date), [entries, date]);
 
   const PAGE = 30;
   const [visible, setVisible] = useState(PAGE);
@@ -79,9 +81,15 @@ function HistoricoDia() {
       </div>
 
       <section className="grid grid-cols-2 gap-3">
-        <Stat label="Total vendido" value={brl(total)} highlight />
-        <Stat label="Quantidade" value={`${sales.length}`} />
+        <Stat label="Total vendido" value={brl(stats.received)} highlight />
+        <Stat label="Quantidade" value={`${stats.salesCount}`} />
+        <Stat label="Gasto no dia" value={brl(stats.spent)} />
+        <Stat label="Guardado no dia" value={brl(stats.saved)} />
       </section>
+
+      <p className="rounded-2xl bg-gradient-soft p-4 text-xs text-muted-foreground">
+        {closingMessage(stats)}
+      </p>
 
       <section className="space-y-2">
         {sales.length === 0 && (
@@ -99,12 +107,15 @@ function HistoricoDia() {
           >
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">
-                {item.description || item.category || "Venda"}
+                {hourOf(item)} — {item.description || item.category || "Venda"}
               </span>
-              <span className="block text-xs text-muted-foreground">
-                {hourOf(item.created_at) ?? "—"}
+              <span className="block truncate text-xs text-muted-foreground">
+                {[item.category, item.method, item.client_name, item.notes]
+                  .filter(Boolean)
+                  .join(" · ") || "Toque para editar"}
               </span>
             </span>
+
             <span className="shrink-0 text-sm font-semibold text-primary">
               {brl(Number(item.amount))}
             </span>

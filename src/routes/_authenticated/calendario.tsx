@@ -2,7 +2,16 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFinance } from "@/lib/db";
-import { MONTHS, WEEKDAYS, brl, formatDayLabel, toISO, todayISO } from "@/lib/finance";
+import {
+  MONTHS,
+  WEEKDAYS,
+  brl,
+  formatDayLabel,
+  periodStats,
+  toISO,
+  todayISO,
+} from "@/lib/finance";
+
 import { useRecordSheet } from "@/components/app-shell";
 import { cn } from "@/lib/utils";
 
@@ -29,8 +38,9 @@ type DayItem = {
 };
 
 function Calendario() {
-  const { entries, bills } = useFinance();
+  const { entries, bills, notes, reminders } = useFinance();
   const sheet = useRecordSheet();
+
   const today = todayISO();
   const [cursor, setCursor] = useState(() => {
     const [y, m] = today.split("-").map(Number);
@@ -48,18 +58,27 @@ function Calendario() {
   }, [cursor]);
 
   const byDay = useMemo(() => {
-    const map = new Map<string, { income: number; expense: number }>();
-    const bump = (iso: string, key: "income" | "expense", value: number) => {
-      const cur = map.get(iso) ?? { income: 0, expense: 0 };
+    const map = new Map<string, { income: number; expense: number; saving: number }>();
+    const bump = (iso: string, key: "income" | "expense" | "saving", value: number) => {
+      const cur = map.get(iso) ?? { income: 0, expense: 0, saving: 0 };
       cur[key] += value;
       map.set(iso, cur);
     };
     entries.forEach((e) =>
-      bump(e.date, e.kind === "income" ? "income" : "expense", Number(e.amount)),
+      bump(
+        e.date,
+        e.kind === "income" ? "income" : e.kind === "saving" ? "saving" : "expense",
+        Number(e.amount),
+      ),
     );
     bills.forEach((b) => bump(b.due_date, "expense", Number(b.amount)));
     return map;
   }, [entries, bills]);
+
+  const daySummary = useMemo(
+    () => periodStats(entries.filter((e) => e.date === selected)),
+    [entries, selected],
+  );
 
   const dayItems: DayItem[] = useMemo(() => {
     const list: DayItem[] = [];
@@ -68,7 +87,9 @@ function Calendario() {
       .forEach((e) =>
         list.push({
           id: `e-${e.id}`,
-          label: e.description || e.category || "Lançamento",
+          label: `${e.kind === "income" ? "📥" : e.kind === "saving" ? "💗" : "📤"} ${
+            e.description || e.category || "Lançamento"
+          }`,
           amount: Number(e.amount),
           positive: e.kind === "income",
           onOpen: () => sheet.open(e.kind, { ...e, __type: e.kind }),
@@ -79,14 +100,37 @@ function Calendario() {
       .forEach((b) =>
         list.push({
           id: `b-${b.id}`,
-          label: `${b.name}${b.paid ? " (paga)" : ""}`,
+          label: `🧾 ${b.name}${b.paid ? " (paga)" : ""}`,
           amount: Number(b.amount),
           positive: false,
           onOpen: () => sheet.open("bill", { ...b, __type: "bill" }),
         }),
       );
+    notes
+      .filter((n) => n.date === selected)
+      .forEach((n) =>
+        list.push({
+          id: `n-${n.id}`,
+          label: `📝 ${n.title || "Anotação"}`,
+          amount: 0,
+          positive: true,
+          onOpen: () => sheet.open("note", { ...n, __type: "note" }),
+        }),
+      );
+    reminders
+      .filter((r) => r.date === selected)
+      .forEach((r) =>
+        list.push({
+          id: `r-${r.id}`,
+          label: `🔔 ${r.title}`,
+          amount: 0,
+          positive: true,
+          onOpen: () => sheet.open("reminder", { ...r, __type: "reminder" }),
+        }),
+      );
     return list;
-  }, [entries, bills, selected, sheet]);
+  }, [entries, bills, notes, reminders, selected, sheet]);
+
 
   const move = (delta: number) => {
     const d = new Date(cursor.year, cursor.month + delta, 1);
@@ -147,6 +191,8 @@ function Calendario() {
                 <span className="mt-0.5 flex gap-0.5">
                   {info?.income ? <Dot className="bg-primary" active={selected === iso} /> : null}
                   {info?.expense ? <Dot className="bg-accent" active={selected === iso} /> : null}
+                  {info?.saving ? <Dot className="bg-lilac" active={selected === iso} /> : null}
+
                 </span>
               </button>
             );
@@ -156,6 +202,21 @@ function Calendario() {
 
       <section className="space-y-2">
         <h2 className="font-display text-lg">{formatDayLabel(selected)}</h2>
+        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-gradient-soft p-4 text-xs">
+          <p>
+            📥 Entradas <strong className="text-primary">{brl(daySummary.received)}</strong>
+          </p>
+          <p>
+            📤 Gastos <strong>{brl(daySummary.spent)}</strong>
+          </p>
+          <p>
+            💗 Guardado <strong>{brl(daySummary.saved)}</strong>
+          </p>
+          <p>
+            💰 Disponível <strong className="text-primary">{brl(daySummary.available)}</strong>
+          </p>
+        </div>
+
         {dayItems.length === 0 && (
           <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
             Nenhum registro neste dia.
@@ -175,8 +236,8 @@ function Calendario() {
                 item.positive ? "text-primary" : "text-foreground",
               )}
             >
-              {item.positive ? "+" : "-"}
-              {brl(item.amount)}
+              {item.amount ? `${item.positive ? "+" : "-"}${brl(item.amount)}` : ""}
+
             </span>
           </button>
         ))}

@@ -236,8 +236,8 @@ function Calendario() {
                 item.positive ? "text-primary" : "text-foreground",
               )}
             >
-              {item.positive ? "+" : "-"}
-              {brl(item.amount)}
+              {item.amount ? `${item.positive ? "+" : "-"}${brl(item.amount)}` : ""}
+
             </span>
           </button>
         ))}

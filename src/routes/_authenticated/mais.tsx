@@ -9,6 +9,8 @@ import {
   brl,
   buildStats,
   formatDayLabel,
+  goalPace,
+
   todayISO,
 } from "@/lib/finance";
 import { useRecordSheet } from "@/components/app-shell";

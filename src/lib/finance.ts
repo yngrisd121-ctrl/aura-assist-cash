@@ -118,8 +118,12 @@ export function buildSnapshot(
     .filter((e) => e.kind === "income" && inRange(e.date))
     .reduce((s, e) => s + Number(e.amount), 0);
   const spent = entries
-    .filter((e) => e.kind !== "income" && inRange(e.date))
+    .filter((e) => e.kind !== "income" && e.kind !== "saving" && inRange(e.date))
     .reduce((s, e) => s + Number(e.amount), 0);
+  const savedInRange = entries
+    .filter((e) => e.kind === "saving" && inRange(e.date))
+    .reduce((s, e) => s + Number(e.amount), 0);
+
   const upcomingBills = bills
     .filter((b) => !b.paid && inRange(b.due_date))
     .reduce((s, b) => s + Number(b.amount), 0);

@@ -81,9 +81,15 @@ function HistoricoDia() {
       </div>
 
       <section className="grid grid-cols-2 gap-3">
-        <Stat label="Total vendido" value={brl(total)} highlight />
-        <Stat label="Quantidade" value={`${sales.length}`} />
+        <Stat label="Total vendido" value={brl(stats.received)} highlight />
+        <Stat label="Quantidade" value={`${stats.salesCount}`} />
+        <Stat label="Gasto no dia" value={brl(stats.spent)} />
+        <Stat label="Guardado no dia" value={brl(stats.saved)} />
       </section>
+
+      <p className="rounded-2xl bg-gradient-soft p-4 text-xs text-muted-foreground">
+        {closingMessage(stats)}
+      </p>
 
       <section className="space-y-2">
         {sales.length === 0 && (
@@ -101,12 +107,15 @@ function HistoricoDia() {
           >
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">
-                {item.description || item.category || "Venda"}
+                {hourOf(item)} — {item.description || item.category || "Venda"}
               </span>
-              <span className="block text-xs text-muted-foreground">
-                {hourOf(item.created_at) ?? "—"}
+              <span className="block truncate text-xs text-muted-foreground">
+                {[item.category, item.method, item.client_name, item.notes]
+                  .filter(Boolean)
+                  .join(" · ") || "Toque para editar"}
               </span>
             </span>
+
             <span className="shrink-0 text-sm font-semibold text-primary">
               {brl(Number(item.amount))}
             </span>

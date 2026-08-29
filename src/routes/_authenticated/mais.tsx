@@ -257,18 +257,27 @@ function Mais() {
             key={d.id}
             type="button"
             onClick={() => sheet.open("debt", { ...d, __type: "debt" })}
-            className="flex w-full items-center justify-between rounded-2xl border border-border bg-card p-4 text-left shadow-soft active:scale-[0.99]"
+            className="w-full rounded-2xl border border-border bg-card p-4 text-left shadow-soft active:scale-[0.99]"
           >
-            <span>
-              <span className="block text-sm font-medium">{d.name}</span>
-              <span className="block text-xs text-muted-foreground">
-                {d.installments_paid}/{d.installments_total} • {formatDayLabel(d.due_date)}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">{d.name}</span>
+              <span className="text-sm font-semibold">
+                Falta {brl(Number(d.total_amount) - Number(d.paid_amount))}
               </span>
-            </span>
-            <span className="text-sm font-semibold">
-              {brl(Number(d.total_amount) - Number(d.paid_amount))}
-            </span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Total {brl(Number(d.total_amount))} · Pago {brl(Number(d.paid_amount))} ·{" "}
+              {d.installments_paid}/{d.installments_total} parcelas · {formatDayLabel(d.due_date)}
+            </p>
+            <Progress
+              value={Math.min(
+                100,
+                Math.round((Number(d.paid_amount) / Math.max(Number(d.total_amount), 1)) * 100),
+              )}
+              className="mt-2 h-2"
+            />
           </button>
+
         ))}
         <Button variant="outline" className="w-full" onClick={() => sheet.open("debt")}>
           Nova dívida

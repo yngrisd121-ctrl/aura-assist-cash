@@ -49,7 +49,7 @@ function HistoricoDia() {
       .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""));
   }, [entries, date]);
 
-  const total = useMemo(() => sales.reduce((s, e) => s + Number(e.amount), 0), [sales]);
+  const stats = useMemo(() => dayStats(entries, date), [entries, date]);
 
   const PAGE = 30;
   const [visible, setVisible] = useState(PAGE);

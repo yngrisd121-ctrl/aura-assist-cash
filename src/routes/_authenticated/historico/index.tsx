@@ -144,7 +144,48 @@ function Historico() {
         ))}
       </div>
 
+      <section className="rounded-3xl border border-border bg-card p-5 shadow-soft">
+        <h2 className="font-display text-lg">Resumo do período</h2>
+        <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+          <p>
+            📥 Recebido <strong className="text-primary">{brl(stats.totalReceived)}</strong>
+          </p>
+          <p>
+            🔢 Vendas <strong>{stats.totalSales}</strong>
+          </p>
+          <p>
+            📤 Gasto <strong>{brl(stats.totalSpent)}</strong>
+          </p>
+          <p>
+            💗 Guardado <strong>{brl(stats.totalSaved)}</strong>
+          </p>
+          <p>
+            💰 Saldo <strong className="text-primary">{brl(stats.balance)}</strong>
+          </p>
+          <p>
+            📈 Média/dia <strong>{brl(stats.avgPerDay)}</strong>
+          </p>
+        </div>
+
+        {chart.list.length > 0 && (
+          <div className="mt-4">
+            <p className="text-[11px] text-muted-foreground">Entradas por dia</p>
+            <div className="mt-2 flex h-24 items-end gap-1">
+              {chart.list.map((d) => (
+                <div
+                  key={d.date}
+                  title={`${formatDayLabel(d.date)} — ${brl(d.total)}`}
+                  className="flex-1 rounded-t-md bg-gradient-rose"
+                  style={{ height: `${Math.max(6, (d.total / chart.max) * 100)}%` }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
       <section className="space-y-2">
+
         {days.length === 0 && (
           <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
             Nenhuma venda neste período. Toque no + para registrar.

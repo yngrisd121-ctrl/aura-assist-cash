@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useFinance } from "@/lib/db";
-import { brl, formatDayLabel } from "@/lib/finance";
+import { brl, closingMessage, dayStats, formatDayLabel } from "@/lib/finance";
 import { useRecordSheet } from "@/components/app-shell";
 import { cn } from "@/lib/utils";
 

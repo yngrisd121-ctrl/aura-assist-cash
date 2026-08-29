@@ -191,6 +191,8 @@ function Calendario() {
                 <span className="mt-0.5 flex gap-0.5">
                   {info?.income ? <Dot className="bg-primary" active={selected === iso} /> : null}
                   {info?.expense ? <Dot className="bg-accent" active={selected === iso} /> : null}
+                  {info?.saving ? <Dot className="bg-lilac" active={selected === iso} /> : null}
+
                 </span>
               </button>
             );

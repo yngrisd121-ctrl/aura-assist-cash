@@ -2,7 +2,16 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFinance } from "@/lib/db";
-import { MONTHS, WEEKDAYS, brl, formatDayLabel, toISO, todayISO } from "@/lib/finance";
+import {
+  MONTHS,
+  WEEKDAYS,
+  brl,
+  formatDayLabel,
+  periodStats,
+  toISO,
+  todayISO,
+} from "@/lib/finance";
+
 import { useRecordSheet } from "@/components/app-shell";
 import { cn } from "@/lib/utils";
 

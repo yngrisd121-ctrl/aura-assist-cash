@@ -29,12 +29,14 @@ export const Route = createFileRoute("/_authenticated/historico/$date")({
   component: HistoricoDia,
 });
 
-const hourOf = (createdAt?: string) => {
-  if (!createdAt) return null;
-  const d = new Date(createdAt);
-  if (Number.isNaN(d.getTime())) return null;
+const hourOf = (e: { time_of_day?: string | null; created_at?: string }) => {
+  if (e.time_of_day) return e.time_of_day.slice(0, 5);
+  if (!e.created_at) return "—";
+  const d = new Date(e.created_at);
+  if (Number.isNaN(d.getTime())) return "—";
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 };
+
 
 function HistoricoDia() {
   const { date } = Route.useParams();

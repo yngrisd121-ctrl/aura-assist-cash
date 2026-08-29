@@ -58,12 +58,22 @@ function Historico() {
     return t;
   }, [sales, today, monthPrefix]);
 
+  const inRange = useMemo(() => {
+    return (date: string) => {
+      if (filter === "day") return date === today;
+      if (filter === "week") return date >= weekStart && date <= today;
+      return date.startsWith(monthPrefix);
+    };
+  }, [filter, today, weekStart, monthPrefix]);
+
+  const periodEntries = useMemo(
+    () => entries.filter((e) => inRange(e.date)),
+    [entries, inRange],
+  );
+  const stats = useMemo(() => buildStats(periodEntries), [periodEntries]);
+
   const days = useMemo(() => {
-    const filtered = sales.filter((s) => {
-      if (filter === "day") return s.date === today;
-      if (filter === "week") return s.date >= weekStart && s.date <= today;
-      return s.date.startsWith(monthPrefix);
-    });
+    const filtered = sales.filter((s) => inRange(s.date));
     const map = new Map<string, typeof filtered>();
     filtered.forEach((s) => {
       const list = map.get(s.date) ?? [];
@@ -79,7 +89,14 @@ function Historico() {
         ),
         total: items.reduce((sum, i) => sum + Number(i.amount), 0),
       }));
-  }, [sales, filter, today, weekStart, monthPrefix]);
+  }, [sales, inRange]);
+
+  const chart = useMemo(() => {
+    const list = [...days].sort((a, b) => a.date.localeCompare(b.date)).slice(-14);
+    const max = Math.max(...list.map((d) => d.total), 1);
+    return { list, max };
+  }, [days]);
+
 
   const PAGE = 20;
   const [visible, setVisible] = useState(PAGE);

@@ -2,11 +2,20 @@ import { useMemo } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useFinance } from "@/lib/db";
-import { autoReminders, brl, formatDayLabel } from "@/lib/finance";
+import { useFinance, useSavePercent, useUpdateProfile } from "@/lib/db";
+import {
+  addDaysISO,
+  autoReminders,
+  brl,
+  buildStats,
+  formatDayLabel,
+  todayISO,
+} from "@/lib/finance";
 import { useRecordSheet } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/_authenticated/mais")({
   head: () => ({

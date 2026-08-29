@@ -49,18 +49,27 @@ function Calendario() {
   }, [cursor]);
 
   const byDay = useMemo(() => {
-    const map = new Map<string, { income: number; expense: number }>();
-    const bump = (iso: string, key: "income" | "expense", value: number) => {
-      const cur = map.get(iso) ?? { income: 0, expense: 0 };
+    const map = new Map<string, { income: number; expense: number; saving: number }>();
+    const bump = (iso: string, key: "income" | "expense" | "saving", value: number) => {
+      const cur = map.get(iso) ?? { income: 0, expense: 0, saving: 0 };
       cur[key] += value;
       map.set(iso, cur);
     };
     entries.forEach((e) =>
-      bump(e.date, e.kind === "income" ? "income" : "expense", Number(e.amount)),
+      bump(
+        e.date,
+        e.kind === "income" ? "income" : e.kind === "saving" ? "saving" : "expense",
+        Number(e.amount),
+      ),
     );
     bills.forEach((b) => bump(b.due_date, "expense", Number(b.amount)));
     return map;
   }, [entries, bills]);
+
+  const daySummary = useMemo(
+    () => periodStats(entries.filter((e) => e.date === selected)),
+    [entries, selected],
+  );
 
   const dayItems: DayItem[] = useMemo(() => {
     const list: DayItem[] = [];
@@ -69,7 +78,9 @@ function Calendario() {
       .forEach((e) =>
         list.push({
           id: `e-${e.id}`,
-          label: e.description || e.category || "Lançamento",
+          label: `${e.kind === "income" ? "📥" : e.kind === "saving" ? "💗" : "📤"} ${
+            e.description || e.category || "Lançamento"
+          }`,
           amount: Number(e.amount),
           positive: e.kind === "income",
           onOpen: () => sheet.open(e.kind, { ...e, __type: e.kind }),
@@ -80,14 +91,37 @@ function Calendario() {
       .forEach((b) =>
         list.push({
           id: `b-${b.id}`,
-          label: `${b.name}${b.paid ? " (paga)" : ""}`,
+          label: `🧾 ${b.name}${b.paid ? " (paga)" : ""}`,
           amount: Number(b.amount),
           positive: false,
           onOpen: () => sheet.open("bill", { ...b, __type: "bill" }),
         }),
       );
+    notes
+      .filter((n) => n.date === selected)
+      .forEach((n) =>
+        list.push({
+          id: `n-${n.id}`,
+          label: `📝 ${n.title || "Anotação"}`,
+          amount: 0,
+          positive: true,
+          onOpen: () => sheet.open("note", { ...n, __type: "note" }),
+        }),
+      );
+    reminders
+      .filter((r) => r.date === selected)
+      .forEach((r) =>
+        list.push({
+          id: `r-${r.id}`,
+          label: `🔔 ${r.title}`,
+          amount: 0,
+          positive: true,
+          onOpen: () => sheet.open("reminder", { ...r, __type: "reminder" }),
+        }),
+      );
     return list;
-  }, [entries, bills, selected, sheet]);
+  }, [entries, bills, notes, reminders, selected, sheet]);
+
 
   const move = (delta: number) => {
     const d = new Date(cursor.year, cursor.month + delta, 1);

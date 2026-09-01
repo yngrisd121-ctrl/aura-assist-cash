@@ -16,10 +16,13 @@ export type Database = {
     Tables: {
       bills: {
         Row: {
+          active: boolean
           amount: number
+          bill_type: string | null
           category: string | null
           created_at: string
           due_date: string
+          due_day: number | null
           id: string
           name: string
           paid: boolean
@@ -28,10 +31,13 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          active?: boolean
           amount?: number
+          bill_type?: string | null
           category?: string | null
           created_at?: string
           due_date?: string
+          due_day?: number | null
           id?: string
           name: string
           paid?: boolean
@@ -40,10 +46,13 @@ export type Database = {
           user_id: string
         }
         Update: {
+          active?: boolean
           amount?: number
+          bill_type?: string | null
           category?: string | null
           created_at?: string
           due_date?: string
+          due_day?: number | null
           id?: string
           name?: string
           paid?: boolean
@@ -83,11 +92,14 @@ export type Database = {
       debts: {
         Row: {
           created_at: string
+          debt_type: string | null
           due_date: string
           id: string
+          installment_amount: number
           installments_paid: number
           installments_total: number
           name: string
+          notes: string | null
           paid_amount: number
           total_amount: number
           updated_at: string
@@ -95,11 +107,14 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          debt_type?: string | null
           due_date?: string
           id?: string
+          installment_amount?: number
           installments_paid?: number
           installments_total?: number
           name: string
+          notes?: string | null
           paid_amount?: number
           total_amount?: number
           updated_at?: string
@@ -107,11 +122,14 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          debt_type?: string | null
           due_date?: string
           id?: string
+          installment_amount?: number
           installments_paid?: number
           installments_total?: number
           name?: string
+          notes?: string | null
           paid_amount?: number
           total_amount?: number
           updated_at?: string
@@ -244,6 +262,73 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          bill_id: string | null
+          created_at: string
+          debt_id: string | null
+          entry_id: string | null
+          id: string
+          installments: number
+          note: string | null
+          paid_date: string
+          reference_month: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          bill_id?: string | null
+          created_at?: string
+          debt_id?: string | null
+          entry_id?: string | null
+          id?: string
+          installments?: number
+          note?: string | null
+          paid_date?: string
+          reference_month?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          bill_id?: string | null
+          created_at?: string
+          debt_id?: string | null
+          entry_id?: string | null
+          id?: string
+          installments?: number
+          note?: string | null
+          paid_date?: string
+          reference_month?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_debt_id_fkey"
+            columns: ["debt_id"]
+            isOneToOne: false
+            referencedRelation: "debts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

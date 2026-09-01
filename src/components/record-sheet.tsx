@@ -153,23 +153,37 @@ export function RecordSheet({
       });
     } else if (type === "bill") {
       if (!str("name")) { toast.error("Informe o nome da conta"); return; }
+      const dueDate = str("due_date") || todayISO();
+      const recurring = form['recurring'] === true;
+      const day = Number(form['due_day'] ?? 0) || Number(dueDate.slice(8)) || 1;
       Object.assign(payload, {
         name: str("name"),
         amount,
-        due_date: str("due_date") || todayISO(),
-        paid: form['paid'] === true,
-        recurring: form['recurring'] === true,
-        category: str("category") || null,
+        due_date: dueDate,
+        due_day: Math.min(Math.max(day, 1), 31),
+        active: form['active'] !== false,
+        bill_type: str("bill_type") || null,
+        paid: recurring ? false : form['paid'] === true,
+        recurring,
+        category: str("bill_type") || str("category") || null,
       });
     } else if (type === "debt") {
       if (!str("name")) { toast.error("Informe o nome da dívida"); return; }
+      const total = Number(String(form['total_amount'] ?? "0").replace(",", ".")) || 0;
+      const parcels = Math.max(1, Number(form['installments_total'] ?? 1) || 1);
+      const perParcel =
+        Number(String(form['installment_amount'] ?? "0").replace(",", ".")) ||
+        Math.round((total / parcels) * 100) / 100;
       Object.assign(payload, {
         name: str("name"),
-        total_amount: Number(String(form['total_amount'] ?? "0").replace(",", ".")) || 0,
+        debt_type: str("debt_type") || null,
+        total_amount: total,
         paid_amount: Number(String(form['paid_amount'] ?? "0").replace(",", ".")) || 0,
         due_date: str("due_date") || todayISO(),
-        installments_total: Number(form['installments_total'] ?? 1) || 1,
-        installments_paid: Number(form['installments_paid'] ?? 0) || 0,
+        installments_total: parcels,
+        installments_paid: Math.min(parcels, Number(form['installments_paid'] ?? 0) || 0),
+        installment_amount: perParcel,
+        notes: str("notes") || null,
       });
     } else if (type === "goal") {
       if (!str("name")) { toast.error("Informe o nome da meta"); return; }

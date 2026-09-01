@@ -129,6 +129,12 @@ export function RecordSheet({
 
   const amountValue = Number(String(form['amount'] ?? "0").replace(",", ".")) || 0;
   const suggested = Math.round(amountValue * percent) / 100;
+  const parcelSuggestion =
+    Math.round(
+      ((Number(String(form['total_amount'] ?? "0").replace(",", ".")) || 0) /
+        Math.max(1, Number(form['installments_total'] ?? 1) || 1)) *
+        100,
+    ) / 100;
 
   const handleSave = () => {
     const payload: Row = {};

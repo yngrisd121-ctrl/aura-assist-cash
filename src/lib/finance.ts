@@ -26,6 +26,9 @@ export type Bill = {
   paid: boolean;
   recurring: boolean;
   category: string | null;
+  due_day?: number | null;
+  active?: boolean | null;
+  bill_type?: string | null;
 };
 
 export type Debt = {
@@ -36,6 +39,9 @@ export type Debt = {
   due_date: string;
   installments_total: number;
   installments_paid: number;
+  installment_amount?: number | null;
+  debt_type?: string | null;
+  notes?: string | null;
 };
 
 export type Goal = {

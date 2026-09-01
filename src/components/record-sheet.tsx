@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useDeleteRecord, useSaveRecord, useSavePercent, type TableName } from "@/lib/db";
 import { brl, todayISO } from "@/lib/finance";
+import { BILL_TYPES, DEBT_TYPES } from "@/lib/obligations";
 import { cn } from "@/lib/utils";
 
 
@@ -128,6 +129,12 @@ export function RecordSheet({
 
   const amountValue = Number(String(form['amount'] ?? "0").replace(",", ".")) || 0;
   const suggested = Math.round(amountValue * percent) / 100;
+  const parcelSuggestion =
+    Math.round(
+      ((Number(String(form['total_amount'] ?? "0").replace(",", ".")) || 0) /
+        Math.max(1, Number(form['installments_total'] ?? 1) || 1)) *
+        100,
+    ) / 100;
 
   const handleSave = () => {
     const payload: Row = {};
@@ -153,23 +160,37 @@ export function RecordSheet({
       });
     } else if (type === "bill") {
       if (!str("name")) { toast.error("Informe o nome da conta"); return; }
+      const dueDate = str("due_date") || todayISO();
+      const recurring = form['recurring'] === true;
+      const day = Number(form['due_day'] ?? 0) || Number(dueDate.slice(8)) || 1;
       Object.assign(payload, {
         name: str("name"),
         amount,
-        due_date: str("due_date") || todayISO(),
-        paid: form['paid'] === true,
-        recurring: form['recurring'] === true,
-        category: str("category") || null,
+        due_date: dueDate,
+        due_day: Math.min(Math.max(day, 1), 31),
+        active: form['active'] !== false,
+        bill_type: str("bill_type") || null,
+        paid: recurring ? false : form['paid'] === true,
+        recurring,
+        category: str("bill_type") || str("category") || null,
       });
     } else if (type === "debt") {
       if (!str("name")) { toast.error("Informe o nome da dívida"); return; }
+      const total = Number(String(form['total_amount'] ?? "0").replace(",", ".")) || 0;
+      const parcels = Math.max(1, Number(form['installments_total'] ?? 1) || 1);
+      const perParcel =
+        Number(String(form['installment_amount'] ?? "0").replace(",", ".")) ||
+        Math.round((total / parcels) * 100) / 100;
       Object.assign(payload, {
         name: str("name"),
-        total_amount: Number(String(form['total_amount'] ?? "0").replace(",", ".")) || 0,
+        debt_type: str("debt_type") || null,
+        total_amount: total,
         paid_amount: Number(String(form['paid_amount'] ?? "0").replace(",", ".")) || 0,
         due_date: str("due_date") || todayISO(),
-        installments_total: Number(form['installments_total'] ?? 1) || 1,
-        installments_paid: Number(form['installments_paid'] ?? 0) || 0,
+        installments_total: parcels,
+        installments_paid: Math.min(parcels, Number(form['installments_paid'] ?? 0) || 0),
+        installment_amount: perParcel,
+        notes: str("notes") || null,
       });
     } else if (type === "goal") {
       if (!str("name")) { toast.error("Informe o nome da meta"); return; }
@@ -397,7 +418,31 @@ export function RecordSheet({
             {type === "bill" && (
               <>
                 <Field label="Nome da conta">
-                  <Input autoFocus value={str("name")} onChange={(e) => set("name", e.target.value)} />
+                  <Input
+                    autoFocus
+                    placeholder="Ex.: Aluguel, energia, internet"
+                    value={str("name")}
+                    onChange={(e) => set("name", e.target.value)}
+                  />
+                </Field>
+                <Field label="Tipo">
+                  <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
+                    {BILL_TYPES.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => set("bill_type", str("bill_type") === t ? "" : t)}
+                        className={cn(
+                          "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium",
+                          str("bill_type") === t
+                            ? "border-transparent bg-accent text-accent-foreground"
+                            : "border-border text-muted-foreground",
+                        )}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
                 </Field>
                 <Field label="Valor">
                   <Input
@@ -407,30 +452,81 @@ export function RecordSheet({
                     onChange={(e) => set("amount", e.target.value)}
                   />
                 </Field>
-                <Field label="Vencimento">
-                  <Input
-                    type="date"
-                    value={str("due_date")}
-                    onChange={(e) => set("due_date", e.target.value)}
-                  />
-                </Field>
-                <ToggleRow
-                  label="Já foi paga"
-                  checked={form['paid'] === true}
-                  onChange={(v) => set("paid", v)}
-                />
                 <ToggleRow
                   label="Repete todo mês"
                   checked={form['recurring'] === true}
                   onChange={(v) => set("recurring", v)}
                 />
+                {form['recurring'] === true ? (
+                  <>
+                    <Field label="Dia do vencimento">
+                      <Input
+                        inputMode="numeric"
+                        placeholder="10"
+                        value={num("due_day")}
+                        onChange={(e) => set("due_day", e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Começa em">
+                      <Input
+                        type="date"
+                        value={str("due_date")}
+                        onChange={(e) => set("due_date", e.target.value)}
+                      />
+                    </Field>
+                    <ToggleRow
+                      label="Conta ativa"
+                      checked={form['active'] !== false}
+                      onChange={(v) => set("active", v)}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Field label="Vencimento">
+                      <Input
+                        type="date"
+                        value={str("due_date")}
+                        onChange={(e) => set("due_date", e.target.value)}
+                      />
+                    </Field>
+                    <ToggleRow
+                      label="Já foi paga"
+                      checked={form['paid'] === true}
+                      onChange={(v) => set("paid", v)}
+                    />
+                  </>
+                )}
               </>
             )}
 
             {type === "debt" && (
               <>
                 <Field label="Nome da dívida">
-                  <Input autoFocus value={str("name")} onChange={(e) => set("name", e.target.value)} />
+                  <Input
+                    autoFocus
+                    placeholder="Ex.: Cartão, empréstimo"
+                    value={str("name")}
+                    onChange={(e) => set("name", e.target.value)}
+                  />
+                </Field>
+                <Field label="Tipo">
+                  <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
+                    {DEBT_TYPES.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => set("debt_type", str("debt_type") === t ? "" : t)}
+                        className={cn(
+                          "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium",
+                          str("debt_type") === t
+                            ? "border-transparent bg-accent text-accent-foreground"
+                            : "border-border text-muted-foreground",
+                        )}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
                 </Field>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Valor total">
@@ -440,13 +536,6 @@ export function RecordSheet({
                       onChange={(e) => set("total_amount", e.target.value)}
                     />
                   </Field>
-                  <Field label="Já pago">
-                    <Input
-                      inputMode="decimal"
-                      value={num("paid_amount")}
-                      onChange={(e) => set("paid_amount", e.target.value)}
-                    />
-                  </Field>
                   <Field label="Parcelas">
                     <Input
                       inputMode="numeric"
@@ -454,7 +543,15 @@ export function RecordSheet({
                       onChange={(e) => set("installments_total", e.target.value)}
                     />
                   </Field>
-                  <Field label="Pagas">
+                  <Field label="Valor da parcela">
+                    <Input
+                      inputMode="decimal"
+                      placeholder={brl(parcelSuggestion)}
+                      value={num("installment_amount")}
+                      onChange={(e) => set("installment_amount", e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Parcelas pagas">
                     <Input
                       inputMode="numeric"
                       value={num("installments_paid")}
@@ -462,13 +559,31 @@ export function RecordSheet({
                     />
                   </Field>
                 </div>
-                <Field label="Próximo vencimento">
+                <Field label="Já pago (R$)">
+                  <Input
+                    inputMode="decimal"
+                    value={num("paid_amount")}
+                    onChange={(e) => set("paid_amount", e.target.value)}
+                  />
+                </Field>
+                <Field label="Vencimento da 1ª parcela">
                   <Input
                     type="date"
                     value={str("due_date")}
                     onChange={(e) => set("due_date", e.target.value)}
                   />
                 </Field>
+                <Field label="Observações">
+                  <Textarea
+                    rows={2}
+                    value={str("notes")}
+                    onChange={(e) => set("notes", e.target.value)}
+                  />
+                </Field>
+                <p className="rounded-2xl bg-gradient-soft p-3 text-xs text-muted-foreground">
+                  Cada parcela sugerida fica em <strong>{brl(parcelSuggestion)}</strong>. Você marca
+                  como paga na tela de Contas &amp; Dívidas. 💗
+                </p>
               </>
             )}
 

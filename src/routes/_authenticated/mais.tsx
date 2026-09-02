@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useFinance, useSavePercent, useUpdateProfile } from "@/lib/db";
@@ -160,7 +160,12 @@ function Mais() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="font-display text-lg">🧾 Contas do mês</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-lg">🧾 Contas do mês</h2>
+          <Link to="/contas" className="text-xs font-medium text-primary">
+            Contas e dívidas
+          </Link>
+        </div>
         <div className="grid grid-cols-3 gap-2 rounded-2xl bg-gradient-soft p-4 text-xs">
           <p>
             Total <strong className="block">{brl(billsPaid + billsPending)}</strong>

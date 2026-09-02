@@ -13,6 +13,7 @@ import {
 } from "@/lib/finance";
 import { useRecordSheet } from "@/components/app-shell";
 import { Skeleton } from "@/components/ui/skeleton";
+import { billOccurrences, monthSummary, usePayments } from "@/lib/obligations";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/painel")({
@@ -89,6 +90,19 @@ function Painel() {
     [entries, bills, debts, goals],
   );
 
+  const paymentsQuery = usePayments();
+  const obligations = useMemo(
+    () =>
+      monthSummary(
+        billOccurrences(bills, paymentsQuery.data ?? [], monthPrefix),
+        debts,
+        monthPrefix,
+        today,
+      ),
+    [bills, debts, paymentsQuery.data, monthPrefix, today],
+  );
+
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -141,6 +155,31 @@ function Painel() {
         <Stat label="🎯 Falta p/ metas" value={brl(goalTarget)} />
         <Stat label="📅 Contas a vencer" value={brl(upcoming.reduce((s, b) => s + Number(b.amount), 0))} />
       </section>
+
+      <Link
+        to="/contas"
+        className="block rounded-3xl border border-border bg-card p-5 shadow-soft active:scale-[0.99]"
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-lg">🧾 Contas e dívidas</h2>
+          <span className="text-xs font-medium text-primary">Abrir</span>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+          <p>
+            💰 Total do mês <strong className="block">{brl(obligations.total)}</strong>
+          </p>
+          <p>
+            ✅ Já pago <strong className="block text-primary">{brl(obligations.paid)}</strong>
+          </p>
+          <p>
+            🔴 Pendente <strong className="block">{brl(obligations.pending)}</strong>
+          </p>
+          <p>
+            📊 Dívidas restantes{" "}
+            <strong className="block">{brl(obligations.debtsRemaining)}</strong>
+          </p>
+        </div>
+      </Link>
 
       <section className="space-y-2">
         <div className="flex items-center justify-between">

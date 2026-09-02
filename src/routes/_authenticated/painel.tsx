@@ -90,6 +90,19 @@ function Painel() {
     [entries, bills, debts, goals],
   );
 
+  const paymentsQuery = usePayments();
+  const obligations = useMemo(
+    () =>
+      monthSummary(
+        billOccurrences(bills, paymentsQuery.data ?? [], monthPrefix),
+        debts,
+        monthPrefix,
+        today,
+      ),
+    [bills, debts, paymentsQuery.data, monthPrefix, today],
+  );
+
+
   if (isLoading) {
     return (
       <div className="space-y-3">

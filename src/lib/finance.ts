@@ -15,6 +15,11 @@ export type Entry = {
   client_name?: string | null;
   notes?: string | null;
   quantity?: number | null;
+  save_percent?: number | null;
+  saved_amount?: number | null;
+  available_amount?: number | null;
+  source_entry_id?: string | null;
+
 };
 
 

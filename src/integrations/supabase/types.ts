@@ -140,6 +140,7 @@ export type Database = {
       entries: {
         Row: {
           amount: number
+          available_amount: number | null
           category: string | null
           client_name: string | null
           created_at: string
@@ -152,12 +153,16 @@ export type Database = {
           paid: boolean
           quantity: number
           recurring: boolean
+          save_percent: number
+          saved_amount: number
+          source_entry_id: string | null
           time_of_day: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           amount?: number
+          available_amount?: number | null
           category?: string | null
           client_name?: string | null
           created_at?: string
@@ -170,12 +175,16 @@ export type Database = {
           paid?: boolean
           quantity?: number
           recurring?: boolean
+          save_percent?: number
+          saved_amount?: number
+          source_entry_id?: string | null
           time_of_day?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           amount?: number
+          available_amount?: number | null
           category?: string | null
           client_name?: string | null
           created_at?: string
@@ -188,11 +197,22 @@ export type Database = {
           paid?: boolean
           quantity?: number
           recurring?: boolean
+          save_percent?: number
+          saved_amount?: number
+          source_entry_id?: string | null
           time_of_day?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "entries_source_entry_id_fkey"
+            columns: ["source_entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       goals: {
         Row: {

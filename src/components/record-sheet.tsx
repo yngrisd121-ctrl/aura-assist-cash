@@ -22,7 +22,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useDeleteRecord, useSaveRecord, useSavePercent, type TableName } from "@/lib/db";
+import {
+  useDeleteRecord,
+  useEntries,
+  useSaveRecord,
+  useSavePercent,
+  type TableName,
+} from "@/lib/db";
 import { brl, todayISO } from "@/lib/finance";
 import { BILL_TYPES, DEBT_TYPES } from "@/lib/obligations";
 import { cn } from "@/lib/utils";
@@ -107,21 +113,34 @@ export function RecordSheet({
   const save = useSaveRecord(TABLE[type]);
   const saveEntry = useSaveRecord("entries");
   const remove = useDeleteRecord(TABLE[type]);
+  const removeEntry = useDeleteRecord("entries");
   const editing = Boolean(record?.id);
+  const { data: allEntries } = useEntries();
+
+  const linkedSaving = record?.id
+    ? (allEntries ?? []).find(
+        (e) => e.kind === "saving" && e.source_entry_id === (record.id as string),
+      )
+    : undefined;
 
   useEffect(() => {
     if (!open) return;
-    setPercent(defaultPercent);
-    setAutoSave(false);
     if (record) {
       setType(record.__type);
       const { __type: _ignored, ...rest } = record;
       setForm(rest);
+      const savedPercent = Number(record['save_percent'] ?? 0);
+      setPercent(savedPercent > 0 ? savedPercent : defaultPercent);
+      setAutoSave(Boolean(linkedSaving));
     } else {
       setType(initialType);
+      setPercent(defaultPercent);
+      setAutoSave(false);
       setForm({ date: todayISO(), due_date: todayISO(), time_of_day: nowTime() });
     }
-  }, [open, record, initialType, defaultPercent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, record, initialType, defaultPercent, linkedSaving?.id]);
+
 
   const set = (key: string, value: unknown) => setForm((f) => ({ ...f, [key]: value }));
   const str = (key: string) => (form[key] === undefined || form[key] === null ? "" : String(form[key]));

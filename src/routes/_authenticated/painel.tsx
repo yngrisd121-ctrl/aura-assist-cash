@@ -13,6 +13,7 @@ import {
 } from "@/lib/finance";
 import { useRecordSheet } from "@/components/app-shell";
 import { Skeleton } from "@/components/ui/skeleton";
+import { billOccurrences, monthSummary, usePayments } from "@/lib/obligations";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/painel")({

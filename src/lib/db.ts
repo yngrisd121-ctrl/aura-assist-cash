@@ -57,18 +57,25 @@ export function useFinance() {
 export function useSaveRecord(table: TableName) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (record: Record<string, unknown> & { id?: string }) => {
+    mutationFn: async (
+      record: Record<string, unknown> & { id?: string },
+    ): Promise<{ id: string }> => {
       const { data: auth } = await supabase.auth.getUser();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const query = supabase.from(table) as any;
-      const { error } = record.id
-        ? await query.update(record).eq("id", record.id)
-        : await query.insert({ ...record, user_id: auth.user?.id });
+      const { data, error } = record.id
+        ? await query.update(record).eq("id", record.id).select("id").maybeSingle()
+        : await query
+            .insert({ ...record, user_id: auth.user?.id })
+            .select("id")
+            .maybeSingle();
       if (error) throw error;
+      return { id: (data?.id as string) ?? (record.id as string) };
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: [table] }),
   });
 }
+
 
 export function useDeleteRecord(table: TableName) {
   const qc = useQueryClient();

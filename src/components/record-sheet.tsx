@@ -22,7 +22,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useDeleteRecord, useSaveRecord, useSavePercent, type TableName } from "@/lib/db";
+import {
+  useDeleteRecord,
+  useEntries,
+  useSaveRecord,
+  useSavePercent,
+  type TableName,
+} from "@/lib/db";
 import { brl, todayISO } from "@/lib/finance";
 import { BILL_TYPES, DEBT_TYPES } from "@/lib/obligations";
 import { cn } from "@/lib/utils";

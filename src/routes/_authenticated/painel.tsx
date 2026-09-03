@@ -128,10 +128,10 @@ function Painel() {
       </header>
 
       <section className="rounded-3xl bg-gradient-rose p-5 text-primary-foreground shadow-soft">
-        <p className="text-xs opacity-90">Disponível para gastar hoje</p>
+        <p className="text-xs opacity-90">Saldo disponível</p>
         <p className="font-display text-4xl">{brl(day.available)}</p>
         <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
-          <MiniCard label="📥 Recebi" value={brl(day.received)} />
+          <MiniCard label="📥 Entrou" value={brl(day.received)} />
           <MiniCard label="📤 Gastei" value={brl(day.spent)} />
           <MiniCard label="💗 Guardei" value={brl(day.saved)} />
         </div>

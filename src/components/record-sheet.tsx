@@ -367,22 +367,14 @@ export function RecordSheet({
                   </div>
                 </Field>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Data">
-                    <Input
-                      type="date"
-                      value={str("date")}
-                      onChange={(e) => set("date", e.target.value)}
-                    />
-                  </Field>
-                  <Field label="Horário">
-                    <Input
-                      type="time"
-                      value={str("time_of_day")}
-                      onChange={(e) => set("time_of_day", e.target.value)}
-                    />
-                  </Field>
-                </div>
+                <Field label="Data">
+                  <Input
+                    type="date"
+                    value={str("date")}
+                    onChange={(e) => set("date", e.target.value)}
+                  />
+                </Field>
+
 
                 {type === "income" && (
                   <>

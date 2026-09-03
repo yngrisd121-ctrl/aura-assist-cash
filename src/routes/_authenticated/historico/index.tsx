@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/historico/")({
   head: () => ({
     meta: [
-      { title: "Histórico de vendas — Rosé Finance" },
+      { title: "Histórico — Rosé Finance" },
       {
         name: "description",
         content: "Veja quanto você vendeu em cada dia, com totais do dia, da semana e do mês.",
       },
-      { property: "og:title", content: "Histórico de vendas — Rosé Finance" },
+      { property: "og:title", content: "Histórico — Rosé Finance" },
       {
         property: "og:description",
         content: "Veja quanto você vendeu em cada dia, com totais do dia, da semana e do mês.",

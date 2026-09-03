@@ -9,18 +9,18 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/historico/$date")({
   head: ({ params }) => ({
     meta: [
-      { title: `Vendas de ${formatDayLabel(params.date)} — Rosé Finance` },
+      { title: `Registros de ${formatDayLabel(params.date)} — Rosé Finance` },
       {
         name: "description",
-        content: `Veja todas as vendas registradas em ${formatDayLabel(params.date)}.`,
+        content: `Veja todos os registros de ${formatDayLabel(params.date)}.`,
       },
       {
         property: "og:title",
-        content: `Vendas de ${formatDayLabel(params.date)} — Rosé Finance`,
+        content: `Registros de ${formatDayLabel(params.date)} — Rosé Finance`,
       },
       {
         property: "og:description",
-        content: `Veja todas as vendas registradas em ${formatDayLabel(params.date)}.`,
+        content: `Veja todos os registros de ${formatDayLabel(params.date)}.`,
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

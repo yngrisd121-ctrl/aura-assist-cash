@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/historico/")({
   head: () => ({
     meta: [
-      { title: "Histórico de vendas — Rosé Finance" },
+      { title: "Histórico — Rosé Finance" },
       {
         name: "description",
         content: "Veja quanto você vendeu em cada dia, com totais do dia, da semana e do mês.",
       },
-      { property: "og:title", content: "Histórico de vendas — Rosé Finance" },
+      { property: "og:title", content: "Histórico — Rosé Finance" },
       {
         property: "og:description",
         content: "Veja quanto você vendeu em cada dia, com totais do dia, da semana e do mês.",
@@ -132,8 +132,8 @@ function Historico() {
       <h1 className="font-display text-2xl">Histórico</h1>
 
       <section className="grid grid-cols-2 gap-3">
-        <Stat label="Vendido hoje" value={brl(totals.todayAmount)} highlight />
-        <Stat label="Vendido no mês" value={brl(totals.monthAmount)} highlight />
+        <Stat label="Entrou hoje" value={brl(totals.todayAmount)} highlight />
+        <Stat label="Entrou no mês" value={brl(totals.monthAmount)} highlight />
         <Stat label="💰 Lucro hoje" value={brl(profit.day)} />
         <Stat label="💰 Lucro na semana" value={brl(profit.week)} />
         <Stat label="💰 Lucro no mês" value={brl(profit.month)} />
@@ -164,9 +164,6 @@ function Historico() {
             📥 Recebido <strong className="text-primary">{brl(stats.totalReceived)}</strong>
           </p>
           <p>
-            🔢 Vendas <strong>{stats.totalSales}</strong>
-          </p>
-          <p>
             📤 Gasto <strong>{brl(stats.totalSpent)}</strong>
           </p>
           <p>
@@ -174,9 +171,6 @@ function Historico() {
           </p>
           <p>
             💰 Saldo <strong className="text-primary">{brl(stats.balance)}</strong>
-          </p>
-          <p>
-            📈 Média/dia <strong>{brl(stats.avgPerDay)}</strong>
           </p>
         </div>
 
@@ -201,7 +195,7 @@ function Historico() {
 
         {days.length === 0 && (
           <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Nenhuma venda neste período. Toque no + para registrar.
+            Nenhum registro neste período. Toque no + para registrar.
           </p>
         )}
 
@@ -215,9 +209,6 @@ function Historico() {
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">
                 📅 {formatDayLabel(day.date)}
-              </span>
-              <span className="block text-xs text-muted-foreground">
-                {day.items.length} {day.items.length === 1 ? "venda" : "vendas"}
               </span>
             </span>
             <span className="flex shrink-0 items-center gap-1">

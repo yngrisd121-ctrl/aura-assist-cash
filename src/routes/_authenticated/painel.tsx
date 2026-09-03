@@ -128,10 +128,10 @@ function Painel() {
       </header>
 
       <section className="rounded-3xl bg-gradient-rose p-5 text-primary-foreground shadow-soft">
-        <p className="text-xs opacity-90">Disponível para gastar hoje</p>
+        <p className="text-xs opacity-90">Saldo disponível</p>
         <p className="font-display text-4xl">{brl(day.available)}</p>
         <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
-          <MiniCard label="📥 Recebi" value={brl(day.received)} />
+          <MiniCard label="📥 Entrou" value={brl(day.received)} />
           <MiniCard label="📤 Gastei" value={brl(day.spent)} />
           <MiniCard label="💗 Guardei" value={brl(day.saved)} />
         </div>
@@ -140,10 +140,10 @@ function Painel() {
       <section className="rounded-3xl border border-border bg-card p-5 shadow-soft">
         <h2 className="font-display text-lg">💕 Resumo de hoje</h2>
         <div className="mt-3 space-y-1.5 text-sm">
-          <Row label="Entrou hoje" value={brl(day.received)} tone="primary" />
-          <Row label="Gastei hoje" value={brl(day.spent)} />
-          <Row label="Guardei hoje" value={brl(day.saved)} tone="lilac" />
-          <Row label="Disponível para gastar" value={brl(day.available)} tone="primary" />
+          <Row label="Entrou" value={brl(day.received)} tone="primary" />
+          <Row label="Gastei" value={brl(day.spent)} />
+          <Row label="Guardei" value={brl(day.saved)} tone="lilac" />
+          <Row label="Saldo disponível" value={brl(day.available)} tone="primary" />
         </div>
         <p className="mt-3 rounded-2xl bg-gradient-soft p-3 text-xs text-muted-foreground">
           {closingMessage(day)}
@@ -223,7 +223,7 @@ function Painel() {
           <div className="flex justify-between rounded-2xl bg-gradient-soft p-4 text-sm font-medium">
             <span>Total recebido hoje</span>
             <span className="text-primary">
-              {brl(day.received)} · {day.salesCount} entrada(s)
+              {brl(day.received)}
             </span>
           </div>
         )}

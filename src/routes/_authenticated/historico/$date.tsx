@@ -9,18 +9,18 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/historico/$date")({
   head: ({ params }) => ({
     meta: [
-      { title: `Vendas de ${formatDayLabel(params.date)} — Rosé Finance` },
+      { title: `Registros de ${formatDayLabel(params.date)} — Rosé Finance` },
       {
         name: "description",
-        content: `Veja todas as vendas registradas em ${formatDayLabel(params.date)}.`,
+        content: `Veja todos os registros de ${formatDayLabel(params.date)}.`,
       },
       {
         property: "og:title",
-        content: `Vendas de ${formatDayLabel(params.date)} — Rosé Finance`,
+        content: `Registros de ${formatDayLabel(params.date)} — Rosé Finance`,
       },
       {
         property: "og:description",
-        content: `Veja todas as vendas registradas em ${formatDayLabel(params.date)}.`,
+        content: `Veja todos os registros de ${formatDayLabel(params.date)}.`,
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -81,10 +81,10 @@ function HistoricoDia() {
       </div>
 
       <section className="grid grid-cols-2 gap-3">
-        <Stat label="Total vendido" value={brl(stats.received)} highlight />
-        <Stat label="Quantidade" value={`${stats.salesCount}`} />
+        <Stat label="Entrou no dia" value={brl(stats.received)} highlight />
         <Stat label="Gasto no dia" value={brl(stats.spent)} />
         <Stat label="Guardado no dia" value={brl(stats.saved)} />
+        <Stat label="Saldo disponível" value={brl(stats.available)} highlight />
       </section>
 
       <p className="rounded-2xl bg-gradient-soft p-4 text-xs text-muted-foreground">
@@ -94,7 +94,7 @@ function HistoricoDia() {
       <section className="space-y-2">
         {sales.length === 0 && (
           <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Nenhuma venda neste dia.
+            Nenhum registro neste dia.
           </p>
         )}
 
@@ -107,7 +107,7 @@ function HistoricoDia() {
           >
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">
-                {hourOf(item)} — {item.description || item.category || "Venda"}
+                {hourOf(item)} — {item.description || item.category || "Entrada"}
               </span>
               <span className="block truncate text-xs text-muted-foreground">
                 {[item.category, item.method, item.client_name, item.notes]
@@ -124,7 +124,7 @@ function HistoricoDia() {
 
         {visible < sales.length && (
           <div ref={sentinelRef} className="py-3 text-center text-xs text-muted-foreground">
-            Carregando mais vendas…
+            Carregando mais registros…
           </div>
         )}
       </section>

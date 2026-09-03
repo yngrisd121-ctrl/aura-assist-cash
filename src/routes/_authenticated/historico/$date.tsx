@@ -94,7 +94,7 @@ function HistoricoDia() {
       <section className="space-y-2">
         {sales.length === 0 && (
           <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Nenhuma venda neste dia.
+            Nenhum registro neste dia.
           </p>
         )}
 

@@ -107,7 +107,7 @@ function HistoricoDia() {
           >
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">
-                {hourOf(item)} — {item.description || item.category || "Venda"}
+                {hourOf(item)} — {item.description || item.category || "Entrada"}
               </span>
               <span className="block truncate text-xs text-muted-foreground">
                 {[item.category, item.method, item.client_name, item.notes]
@@ -124,7 +124,7 @@ function HistoricoDia() {
 
         {visible < sales.length && (
           <div ref={sentinelRef} className="py-3 text-center text-xs text-muted-foreground">
-            Carregando mais vendas…
+            Carregando mais registros…
           </div>
         )}
       </section>

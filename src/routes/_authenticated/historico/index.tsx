@@ -172,9 +172,6 @@ function Historico() {
           <p>
             💰 Saldo <strong className="text-primary">{brl(stats.balance)}</strong>
           </p>
-          <p>
-            📈 Média/dia <strong>{brl(stats.avgPerDay)}</strong>
-          </p>
         </div>
 
         {chart.list.length > 0 && (

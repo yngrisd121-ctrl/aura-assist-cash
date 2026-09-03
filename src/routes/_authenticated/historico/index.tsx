@@ -164,9 +164,6 @@ function Historico() {
             📥 Recebido <strong className="text-primary">{brl(stats.totalReceived)}</strong>
           </p>
           <p>
-            🔢 Vendas <strong>{stats.totalSales}</strong>
-          </p>
-          <p>
             📤 Gasto <strong>{brl(stats.totalSpent)}</strong>
           </p>
           <p>

@@ -223,7 +223,7 @@ function Painel() {
           <div className="flex justify-between rounded-2xl bg-gradient-soft p-4 text-sm font-medium">
             <span>Total recebido hoje</span>
             <span className="text-primary">
-              {brl(day.received)} · {day.salesCount} entrada(s)
+              {brl(day.received)}
             </span>
           </div>
         )}

@@ -84,12 +84,6 @@ const EXPENSE_CATEGORIES = [
 const METHODS = ["Pix", "Dinheiro", "Cartão", "Transferência", "Outro"];
 const PERCENTS = [5, 10, 15, 20];
 
-const nowTime = () => {
-  const d = new Date();
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-};
-
-
 type Row = Record<string, unknown> & { id?: string };
 
 export function RecordSheet({
@@ -136,7 +130,7 @@ export function RecordSheet({
       setType(initialType);
       setPercent(defaultPercent);
       setAutoSave(false);
-      setForm({ date: todayISO(), due_date: todayISO(), time_of_day: nowTime() });
+      setForm({ date: todayISO(), due_date: todayISO() });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, record, initialType, defaultPercent, linkedSaving?.id]);
@@ -168,7 +162,6 @@ export function RecordSheet({
         description: str("description") || RECORD_TYPES.find((t) => t.key === type)?.label,
         category: str("category") || null,
         date: str("date") || todayISO(),
-        time_of_day: str("time_of_day") || null,
         method: str("method") || null,
         client_name: str("client_name") || null,
         notes: str("notes") || null,
@@ -246,8 +239,7 @@ export function RecordSheet({
             description: `Guardei ${percent}% da entrada`,
             category: "Guardar",
             date: str("date") || todayISO(),
-            time_of_day: str("time_of_day") || null,
-            paid: true,
+                paid: true,
             recurring: false,
             quantity: 1,
           });

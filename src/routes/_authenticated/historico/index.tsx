@@ -195,7 +195,7 @@ function Historico() {
 
         {days.length === 0 && (
           <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Nenhuma venda neste período. Toque no + para registrar.
+            Nenhum registro neste período. Toque no + para registrar.
           </p>
         )}
 

@@ -58,6 +58,18 @@ function Historico() {
     return t;
   }, [sales, today, monthPrefix]);
 
+  const profit = useMemo(() => {
+    const calc = (fn: (d: string) => boolean) => {
+      const s = periodStats(entries.filter((e) => fn(e.date)));
+      return s.received - s.spent;
+    };
+    return {
+      day: calc((d) => d === today),
+      week: calc((d) => d >= weekStart && d <= today),
+      month: calc((d) => d.startsWith(monthPrefix)),
+    };
+  }, [entries, today, weekStart, monthPrefix]);
+
   const inRange = useMemo(() => {
     return (date: string) => {
       if (filter === "day") return date === today;
@@ -121,9 +133,10 @@ function Historico() {
 
       <section className="grid grid-cols-2 gap-3">
         <Stat label="Vendido hoje" value={brl(totals.todayAmount)} highlight />
-        <Stat label="Vendas hoje" value={`${totals.todayCount}`} />
         <Stat label="Vendido no mês" value={brl(totals.monthAmount)} highlight />
-        <Stat label="Vendas no mês" value={`${totals.monthCount}`} />
+        <Stat label="💰 Lucro hoje" value={brl(profit.day)} />
+        <Stat label="💰 Lucro na semana" value={brl(profit.week)} />
+        <Stat label="💰 Lucro no mês" value={brl(profit.month)} />
       </section>
 
       <div className="flex gap-2">

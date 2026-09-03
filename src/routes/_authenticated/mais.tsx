@@ -98,7 +98,7 @@ function Mais() {
             📊 Média/dia <strong>{brl(stats.avgPerDay)}</strong>
           </p>
           <p>
-            💰 Lucro no mês <strong>{brl(stats.totalIncome - stats.totalSpent)}</strong>
+            💰 Lucro no mês <strong>{brl(stats.totalReceived - stats.totalSpent)}</strong>
           </p>
           <p>
             💵 Média por venda <strong>{brl(stats.avgPerSale)}</strong>

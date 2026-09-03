@@ -210,9 +210,6 @@ function Historico() {
               <span className="block truncate text-sm font-medium">
                 📅 {formatDayLabel(day.date)}
               </span>
-              <span className="block text-xs text-muted-foreground">
-                {day.items.length} {day.items.length === 1 ? "venda" : "vendas"}
-              </span>
             </span>
             <span className="flex shrink-0 items-center gap-1">
               <span className="text-sm font-semibold text-primary">{brl(day.total)}</span>

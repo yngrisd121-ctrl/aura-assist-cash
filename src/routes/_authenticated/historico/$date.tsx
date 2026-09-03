@@ -81,10 +81,10 @@ function HistoricoDia() {
       </div>
 
       <section className="grid grid-cols-2 gap-3">
-        <Stat label="Total vendido" value={brl(stats.received)} highlight />
-        <Stat label="Quantidade" value={`${stats.salesCount}`} />
+        <Stat label="Entrou no dia" value={brl(stats.received)} highlight />
         <Stat label="Gasto no dia" value={brl(stats.spent)} />
         <Stat label="Guardado no dia" value={brl(stats.saved)} />
+        <Stat label="Saldo disponível" value={brl(stats.available)} highlight />
       </section>
 
       <p className="rounded-2xl bg-gradient-soft p-4 text-xs text-muted-foreground">

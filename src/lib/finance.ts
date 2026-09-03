@@ -318,10 +318,10 @@ export function closingMessage(s: DayStats) {
   if (!s.received && !s.spent && !s.saved) {
     return "Ainda não há movimentações hoje. Toque no + para registrar. 🌷";
   }
-  const parts = [`Você recebeu ${brl(s.received)} em ${s.salesCount} venda(s) hoje.`];
+  const parts = [`Entrou ${brl(s.received)} hoje.`];
   if (s.spent) parts.push(`Gastou ${brl(s.spent)}.`);
   if (s.saved) parts.push(`Guardou ${brl(s.saved)}.`);
-  parts.push(`Seu disponível ficou em ${brl(s.available)}. 💕`);
+  parts.push(`Seu saldo disponível ficou em ${brl(s.available)}. 💕`);
   return parts.join(" ");
 }
 

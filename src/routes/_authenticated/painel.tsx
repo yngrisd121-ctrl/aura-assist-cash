@@ -61,6 +61,11 @@ function Painel() {
 
   const day = useMemo(() => periodStats(dayList), [dayList]);
   const month = useMemo(() => periodStats(monthList), [monthList]);
+  const weekStart = addDaysISO(today, -6);
+  const week = useMemo(
+    () => periodStats(entries.filter((e) => e.date >= weekStart && e.date <= today)),
+    [entries, weekStart, today],
+  );
 
   const todayIncomes = useMemo(
     () =>
@@ -146,8 +151,9 @@ function Painel() {
       </section>
 
       <section className="grid grid-cols-2 gap-3">
-        <Stat label="🔢 Vendas hoje" value={String(day.salesCount)} />
-        <Stat label="🔢 Vendas no mês" value={String(month.salesCount)} />
+        <Stat label="💰 Lucro hoje" value={brl(day.received - day.spent)} />
+        <Stat label="💰 Lucro na semana" value={brl(week.received - week.spent)} />
+        <Stat label="💰 Lucro no mês" value={brl(month.received - month.spent)} />
         <Stat label="📊 Recebido no mês" value={brl(month.received)} highlight />
         <Stat label="🧾 Gastos no mês" value={brl(month.spent)} />
         <Stat label="💗 Guardado no mês" value={brl(month.saved)} />

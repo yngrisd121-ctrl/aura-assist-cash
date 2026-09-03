@@ -132,8 +132,8 @@ function Historico() {
       <h1 className="font-display text-2xl">Histórico</h1>
 
       <section className="grid grid-cols-2 gap-3">
-        <Stat label="Vendido hoje" value={brl(totals.todayAmount)} highlight />
-        <Stat label="Vendido no mês" value={brl(totals.monthAmount)} highlight />
+        <Stat label="Entrou hoje" value={brl(totals.todayAmount)} highlight />
+        <Stat label="Entrou no mês" value={brl(totals.monthAmount)} highlight />
         <Stat label="💰 Lucro hoje" value={brl(profit.day)} />
         <Stat label="💰 Lucro na semana" value={brl(profit.week)} />
         <Stat label="💰 Lucro no mês" value={brl(profit.month)} />

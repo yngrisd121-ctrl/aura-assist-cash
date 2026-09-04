@@ -278,7 +278,6 @@ export type DayStats = {
   saved: number;
   available: number;
   incomeCount: number;
-  salesCount: number;
 };
 
 export function dayStats(entries: Entry[], date: string): DayStats {
@@ -292,14 +291,12 @@ export function periodStats(list: Entry[]): DayStats {
     saved: 0,
     available: 0,
     incomeCount: 0,
-    salesCount: 0,
   };
   list.forEach((e) => {
     const amount = Number(e.amount) || 0;
     if (e.kind === "income") {
       s.received += amount;
       s.incomeCount += 1;
-      s.salesCount += Number(e.quantity ?? 1) || 1;
     } else if (e.kind === "saving") {
       s.saved += amount;
     } else {
@@ -328,10 +325,8 @@ export function closingMessage(s: DayStats) {
 export type FullStats = {
   bestDay: { date: string; amount: number } | null;
   avgPerDay: number;
-  avgPerSale: number;
   biggest: number;
   totalReceived: number;
-  totalSales: number;
   totalSaved: number;
   totalSpent: number;
   savedPercent: number;
@@ -357,10 +352,8 @@ export function buildStats(list: Entry[]): FullStats {
   return {
     bestDay,
     avgPerDay: base.received / days,
-    avgPerSale: base.salesCount ? base.received / base.salesCount : 0,
     biggest,
     totalReceived: base.received,
-    totalSales: base.salesCount,
     totalSaved: base.saved,
     totalSpent: base.spent,
     savedPercent: base.received ? (base.saved / base.received) * 100 : 0,

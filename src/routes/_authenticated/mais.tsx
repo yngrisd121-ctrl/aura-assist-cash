@@ -98,8 +98,9 @@ function Mais() {
             💰 Lucro no mês <strong>{brl(stats.totalReceived - stats.totalSpent)}</strong>
           </p>
           <p>
-            💵 Média por venda <strong>{brl(stats.avgPerSale)}</strong>
+            📥 Total recebido <strong>{brl(stats.totalReceived)}</strong>
           </p>
+
           <p>
             ⬆️ Maior entrada <strong>{brl(stats.biggest)}</strong>
           </p>

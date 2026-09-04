@@ -140,10 +140,11 @@ function Painel() {
       <section className="rounded-3xl border border-border bg-card p-5 shadow-soft">
         <h2 className="font-display text-lg">💕 Resumo de hoje</h2>
         <div className="mt-3 space-y-1.5 text-sm">
-          <Row label="Entrou" value={brl(day.received)} tone="primary" />
-          <Row label="Gastei" value={brl(day.spent)} />
-          <Row label="Guardei" value={brl(day.saved)} tone="lilac" />
+          <Row label="Entrou hoje" value={brl(day.received)} tone="primary" />
+          <Row label="Gastei hoje" value={brl(day.spent)} />
+          <Row label="Guardei hoje" value={brl(day.saved)} tone="lilac" />
           <Row label="Saldo disponível" value={brl(day.available)} tone="primary" />
+
         </div>
         <p className="mt-3 rounded-2xl bg-gradient-soft p-3 text-xs text-muted-foreground">
           {closingMessage(day)}

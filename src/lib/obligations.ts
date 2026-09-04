@@ -198,7 +198,6 @@ async function createEntry(input: {
       date: input.date,
       paid: true,
       recurring: false,
-      quantity: 1,
     })
     .select("id")
     .single();

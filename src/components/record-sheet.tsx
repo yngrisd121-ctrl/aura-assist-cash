@@ -165,7 +165,6 @@ export function RecordSheet({
         method: str("method") || null,
         client_name: str("client_name") || null,
         notes: str("notes") || null,
-        quantity: Math.max(1, Number(form['quantity'] ?? 1) || 1),
         paid: form['paid'] !== false,
 
         recurring: type === "fixed",
@@ -241,7 +240,6 @@ export function RecordSheet({
             date: str("date") || todayISO(),
                 paid: true,
             recurring: false,
-            quantity: 1,
           });
           toast.success(`Registrado! ${brl(suggested)} guardado 💗`);
         } else {
@@ -389,22 +387,12 @@ export function RecordSheet({
                         ))}
                       </div>
                     </Field>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Field label="Cliente (opcional)">
-                        <Input
-                          value={str("client_name")}
-                          onChange={(e) => set("client_name", e.target.value)}
-                        />
-                      </Field>
-                      <Field label="Qtd. de vendas">
-                        <Input
-                          inputMode="numeric"
-                          placeholder="1"
-                          value={num("quantity")}
-                          onChange={(e) => set("quantity", e.target.value)}
-                        />
-                      </Field>
-                    </div>
+                    <Field label="Cliente (opcional)">
+                      <Input
+                        value={str("client_name")}
+                        onChange={(e) => set("client_name", e.target.value)}
+                      />
+                    </Field>
                     <Field label="Observação">
                       <Textarea
                         rows={2}

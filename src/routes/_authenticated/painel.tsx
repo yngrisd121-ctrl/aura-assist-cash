@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Landmark } from "lucide-react";
 import { useFinance } from "@/lib/db";
 import {
   MONTHS,
@@ -132,8 +133,15 @@ function Painel() {
       </header>
 
       <section className="rounded-3xl bg-gradient-rose p-5 text-primary-foreground shadow-soft">
-        <p className="text-xs opacity-90">Saldo disponível</p>
-        <p className="font-display text-4xl">{brl(balance)}</p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs opacity-90">Saldo disponível</p>
+            <p className="font-display text-4xl">{brl(balance)}</p>
+          </div>
+          <span className="rounded-2xl bg-white/15 p-2" aria-hidden>
+            <Landmark className="h-5 w-5" />
+          </span>
+        </div>
         <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
           <MiniCard label="📥 Entrou" value={brl(day.received)} />
           <MiniCard label="📤 Gastei" value={brl(day.spent)} />
@@ -156,9 +164,9 @@ function Painel() {
       </section>
 
       <section className="grid grid-cols-2 gap-3">
-        <Stat label="💰 Lucro hoje" value={brl(day.received - day.spent)} />
-        <Stat label="💰 Lucro na semana" value={brl(week.received - week.spent)} />
-        <Stat label="💰 Lucro no mês" value={brl(month.received - month.spent)} />
+        <Stat label="💰 Lucro hoje" value={brl(day.available)} />
+        <Stat label="💰 Lucro na semana" value={brl(week.available)} />
+        <Stat label="💰 Lucro no mês" value={brl(month.available)} />
         <Stat label="📊 Recebido no mês" value={brl(month.received)} highlight />
         <Stat label="🧾 Gastos no mês" value={brl(month.spent)} />
         <Stat label="💗 Guardado no mês" value={brl(month.saved)} />

@@ -61,10 +61,11 @@ function Painel() {
   );
 
   const day = useMemo(() => periodStats(dayList), [dayList]);
-  const balance = useMemo(
-    () => periodStats(entries.filter((e) => e.date <= today)).available,
+  const total = useMemo(
+    () => periodStats(entries.filter((e) => e.date <= today)),
     [entries, today],
   );
+  const balance = total.available;
   const month = useMemo(() => periodStats(monthList), [monthList]);
   const weekStart = addDaysISO(today, -6);
   const week = useMemo(

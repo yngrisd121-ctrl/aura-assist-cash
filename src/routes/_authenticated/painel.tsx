@@ -442,6 +442,48 @@ function Painel() {
   );
 }
 
+const CHART_COLORS = [
+  "var(--primary)",
+  "var(--lilac)",
+  "var(--rose-gold)",
+  "var(--accent)",
+  "var(--nude)",
+  "var(--muted-foreground)",
+];
+
+function PeriodTabs({
+  value,
+  onChange,
+}: {
+  value: "dia" | "semana" | "mes";
+  onChange: (v: "dia" | "semana" | "mes") => void;
+}) {
+  const options = [
+    { id: "dia" as const, label: "Dia" },
+    { id: "semana" as const, label: "Semana" },
+    { id: "mes" as const, label: "Mês" },
+  ];
+  return (
+    <div className="flex gap-1 rounded-full bg-muted p-1">
+      {options.map((o) => (
+        <button
+          key={o.id}
+          type="button"
+          onClick={() => onChange(o.id)}
+          className={cn(
+            "rounded-full px-3 py-1 text-[11px] font-medium transition-colors",
+            value === o.id
+              ? "bg-primary text-primary-foreground shadow-soft"
+              : "text-muted-foreground",
+          )}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function MiniCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-white/15 p-3">

@@ -207,7 +207,7 @@ function BillsTab({
                       : "text-muted-foreground",
                 )}
               >
-                {o.paid ? "✅ Paga" : o.due_date < today ? "🔴 Atrasada" : "⏳ Pendente"} ·{" "}
+                {o.paid ? "✅ Pago" : o.due_date < today ? "🔴 Atrasada" : "⏳ Pendente"} ·{" "}
                 {formatDayLabel(o.due_date)}
                 {o.bill.bill_type ? ` · ${o.bill.bill_type}` : ""}
               </span>
@@ -231,7 +231,7 @@ function BillsTab({
                   )
             }
           >
-            {o.paid ? "Desfazer pagamento" : "Marcar como paga"}
+            {o.paid ? "Desfazer pagamento" : "Marcar como pago ✅"}
           </Button>
         </div>
       ))}
@@ -331,7 +331,7 @@ function DebtCard({ debtId }: { debtId: string }) {
                   )
                 }
               >
-                Marcar como paga
+                Marcar como pago ✅
               </Button>
             )}
           </div>

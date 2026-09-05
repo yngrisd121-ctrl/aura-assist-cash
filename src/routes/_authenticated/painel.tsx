@@ -1,14 +1,26 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Landmark } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+} from "recharts";
 import { useFinance } from "@/lib/db";
 import {
   MONTHS,
+  WEEKDAYS,
   addDaysISO,
   brl,
   buildInsights,
   closingMessage,
   formatDayLabel,
+  parseISO,
   periodStats,
   todayISO,
 } from "@/lib/finance";

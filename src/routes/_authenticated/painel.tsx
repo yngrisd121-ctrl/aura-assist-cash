@@ -126,6 +126,49 @@ function Painel() {
     [bills, debts, paymentsQuery.data, monthPrefix, today],
   );
 
+  const chartFrom = chartPeriod === "dia" ? today : chartPeriod === "semana" ? weekStart : `${monthPrefix}-01`;
+  const inChart = (iso: string) => iso >= chartFrom && iso <= today;
+
+  const incomeChartData = useMemo(() => {
+    if (chartPeriod === "dia") {
+      return dayList
+        .filter((e) => e.kind === "income")
+        .sort((a, b) => hourOf(a).localeCompare(hourOf(b)))
+        .map((e) => ({ label: hourOf(e), valor: Number(e.amount) || 0 }));
+    }
+    if (chartPeriod === "semana") {
+      return Array.from({ length: 7 }, (_, i) => {
+        const d = addDaysISO(weekStart, i);
+        const valor = entries
+          .filter((e) => e.kind === "income" && e.date === d)
+          .reduce((s, e) => s + Number(e.amount), 0);
+        return { label: WEEKDAYS[parseISO(d).getDay()], valor };
+      });
+    }
+    const dayCount = Number(today.slice(8, 10));
+    return Array.from({ length: dayCount }, (_, i) => {
+      const d = `${monthPrefix}-${String(i + 1).padStart(2, "0")}`;
+      const valor = entries
+        .filter((e) => e.kind === "income" && e.date === d)
+        .reduce((s, e) => s + Number(e.amount), 0);
+      return { label: String(i + 1), valor };
+    });
+  }, [chartPeriod, dayList, entries, weekStart, monthPrefix, today]);
+
+  const expenseChartData = useMemo(() => {
+    const map = new Map<string, number>();
+    entries
+      .filter((e) => e.kind !== "income" && e.kind !== "saving" && inChart(e.date))
+      .forEach((e) => {
+        const key = e.category || "Outros";
+        map.set(key, (map.get(key) ?? 0) + (Number(e.amount) || 0));
+      });
+    return Array.from(map.entries())
+      .map(([name, valor]) => ({ name, valor }))
+      .sort((a, b) => b.valor - a.valor);
+  }, [entries, chartFrom, today]);
+
+  const expenseChartTotal = expenseChartData.reduce((s, d) => s + d.valor, 0);
 
   if (isLoading) {
     return (

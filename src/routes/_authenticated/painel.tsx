@@ -232,42 +232,8 @@ function Painel() {
         <Stat label="📅 Contas a vencer" value={brl(upcoming.reduce((s, b) => s + Number(b.amount), 0))} />
       </section>
 
-      <section className="rounded-3xl border border-border bg-card p-5 shadow-soft">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="font-display text-lg">💕 Entradas</h2>
-          <PeriodTabs value={chartPeriod} onChange={setChartPeriod} />
-        </div>
-        {incomeChartData.some((d) => d.valor > 0) ? (
-          <div className="mt-4 h-44 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={incomeChartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-                <XAxis
-                  dataKey="label"
-                  tickLine={false}
-                  axisLine={false}
-                  interval="preserveStartEnd"
-                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                />
-                <Tooltip
-                  cursor={{ fill: "var(--muted)" }}
-                  formatter={(value: number) => [brl(value), "Entrou"]}
-                  contentStyle={{
-                    borderRadius: 16,
-                    border: "1px solid var(--border)",
-                    background: "var(--card)",
-                    fontSize: 12,
-                  }}
-                />
-                <Bar dataKey="valor" fill="var(--primary)" radius={[8, 8, 0, 0]} maxBarSize={28} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        ) : (
-          <p className="mt-4 rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Nenhuma entrada no período. Toque no + para registrar. 💗
-          </p>
-        )}
-      </section>
+
+
 
       <section className="rounded-3xl border border-border bg-card p-5 shadow-soft">
         <div className="flex items-center justify-between gap-2">

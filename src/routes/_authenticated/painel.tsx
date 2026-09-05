@@ -1,14 +1,26 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Landmark } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+} from "recharts";
 import { useFinance } from "@/lib/db";
 import {
   MONTHS,
+  WEEKDAYS,
   addDaysISO,
   brl,
   buildInsights,
   closingMessage,
   formatDayLabel,
+  parseISO,
   periodStats,
   todayISO,
 } from "@/lib/finance";
@@ -48,6 +60,7 @@ const hourOf = (e: { time_of_day?: string | null; created_at?: string }) => {
 function Painel() {
   const { entries, bills, debts, goals, isLoading } = useFinance();
   const sheet = useRecordSheet();
+  const [chartPeriod, setChartPeriod] = useState<"dia" | "semana" | "mes">("semana");
 
   const today = todayISO();
   const [y, m] = today.split("-");
@@ -113,6 +126,49 @@ function Painel() {
     [bills, debts, paymentsQuery.data, monthPrefix, today],
   );
 
+  const chartFrom = chartPeriod === "dia" ? today : chartPeriod === "semana" ? weekStart : `${monthPrefix}-01`;
+  const inChart = (iso: string) => iso >= chartFrom && iso <= today;
+
+  const incomeChartData = useMemo(() => {
+    if (chartPeriod === "dia") {
+      return dayList
+        .filter((e) => e.kind === "income")
+        .sort((a, b) => hourOf(a).localeCompare(hourOf(b)))
+        .map((e) => ({ label: hourOf(e), valor: Number(e.amount) || 0 }));
+    }
+    if (chartPeriod === "semana") {
+      return Array.from({ length: 7 }, (_, i) => {
+        const d = addDaysISO(weekStart, i);
+        const valor = entries
+          .filter((e) => e.kind === "income" && e.date === d)
+          .reduce((s, e) => s + Number(e.amount), 0);
+        return { label: WEEKDAYS[parseISO(d).getDay()], valor };
+      });
+    }
+    const dayCount = Number(today.slice(8, 10));
+    return Array.from({ length: dayCount }, (_, i) => {
+      const d = `${monthPrefix}-${String(i + 1).padStart(2, "0")}`;
+      const valor = entries
+        .filter((e) => e.kind === "income" && e.date === d)
+        .reduce((s, e) => s + Number(e.amount), 0);
+      return { label: String(i + 1), valor };
+    });
+  }, [chartPeriod, dayList, entries, weekStart, monthPrefix, today]);
+
+  const expenseChartData = useMemo(() => {
+    const map = new Map<string, number>();
+    entries
+      .filter((e) => e.kind !== "income" && e.kind !== "saving" && inChart(e.date))
+      .forEach((e) => {
+        const key = e.category || "Outros";
+        map.set(key, (map.get(key) ?? 0) + (Number(e.amount) || 0));
+      });
+    return Array.from(map.entries())
+      .map(([name, valor]) => ({ name, valor }))
+      .sort((a, b) => b.valor - a.valor);
+  }, [entries, chartFrom, today]);
+
+  const expenseChartTotal = expenseChartData.reduce((s, d) => s + d.valor, 0);
 
   if (isLoading) {
     return (
@@ -174,6 +230,105 @@ function Painel() {
         <Stat label="💳 Total de dívidas" value={brl(debtsTotal)} />
         <Stat label="🎯 Falta p/ metas" value={brl(goalTarget)} />
         <Stat label="📅 Contas a vencer" value={brl(upcoming.reduce((s, b) => s + Number(b.amount), 0))} />
+      </section>
+
+      <section className="rounded-3xl border border-border bg-card p-5 shadow-soft">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="font-display text-lg">💕 Entradas</h2>
+          <PeriodTabs value={chartPeriod} onChange={setChartPeriod} />
+        </div>
+        {incomeChartData.some((d) => d.valor > 0) ? (
+          <div className="mt-4 h-44 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={incomeChartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                <XAxis
+                  dataKey="label"
+                  tickLine={false}
+                  axisLine={false}
+                  interval="preserveStartEnd"
+                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                />
+                <Tooltip
+                  cursor={{ fill: "var(--muted)" }}
+                  formatter={(value: number) => [brl(value), "Entrou"]}
+                  contentStyle={{
+                    borderRadius: 16,
+                    border: "1px solid var(--border)",
+                    background: "var(--card)",
+                    fontSize: 12,
+                  }}
+                />
+                <Bar dataKey="valor" fill="var(--primary)" radius={[8, 8, 0, 0]} maxBarSize={28} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <p className="mt-4 rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            Nenhuma entrada no período. Toque no + para registrar. 💗
+          </p>
+        )}
+      </section>
+
+      <section className="rounded-3xl border border-border bg-card p-5 shadow-soft">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="font-display text-lg">📤 Gastos por categoria</h2>
+          <PeriodTabs value={chartPeriod} onChange={setChartPeriod} />
+        </div>
+        {expenseChartData.length > 0 ? (
+          <div className="mt-4 space-y-3">
+            <div className="h-44 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={expenseChartData}
+                    dataKey="valor"
+                    nameKey="name"
+                    innerRadius={48}
+                    outerRadius={76}
+                    paddingAngle={3}
+                    strokeWidth={0}
+                  >
+                    {expenseChartData.map((_, i) => (
+                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: number) => [brl(value), "Gasto"]}
+                    contentStyle={{
+                      borderRadius: 16,
+                      border: "1px solid var(--border)",
+                      background: "var(--card)",
+                      fontSize: 12,
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <ul className="space-y-1.5 text-xs">
+              {expenseChartData.map((d, i) => (
+                <li key={d.name} className="flex items-center justify-between gap-2">
+                  <span className="flex min-w-0 items-center gap-2 text-muted-foreground">
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ background: CHART_COLORS[i % CHART_COLORS.length] }}
+                    />
+                    <span className="truncate">{d.name}</span>
+                  </span>
+                  <span className="shrink-0 font-semibold">
+                    {brl(d.valor)}{" "}
+                    <span className="font-normal text-muted-foreground">
+                      ({Math.round((d.valor / expenseChartTotal) * 100)}%)
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <p className="mt-4 rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            Nenhum gasto no período. 🌷
+          </p>
+        )}
       </section>
 
       <Link
@@ -283,6 +438,48 @@ function Painel() {
           </div>
         ))}
       </section>
+    </div>
+  );
+}
+
+const CHART_COLORS = [
+  "var(--primary)",
+  "var(--lilac)",
+  "var(--rose-gold)",
+  "var(--accent)",
+  "var(--nude)",
+  "var(--muted-foreground)",
+];
+
+function PeriodTabs({
+  value,
+  onChange,
+}: {
+  value: "dia" | "semana" | "mes";
+  onChange: (v: "dia" | "semana" | "mes") => void;
+}) {
+  const options = [
+    { id: "dia" as const, label: "Dia" },
+    { id: "semana" as const, label: "Semana" },
+    { id: "mes" as const, label: "Mês" },
+  ];
+  return (
+    <div className="flex gap-1 rounded-full bg-muted p-1">
+      {options.map((o) => (
+        <button
+          key={o.id}
+          type="button"
+          onClick={() => onChange(o.id)}
+          className={cn(
+            "rounded-full px-3 py-1 text-[11px] font-medium transition-colors",
+            value === o.id
+              ? "bg-primary text-primary-foreground shadow-soft"
+              : "text-muted-foreground",
+          )}
+        >
+          {o.label}
+        </button>
+      ))}
     </div>
   );
 }

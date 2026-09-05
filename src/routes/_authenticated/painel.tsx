@@ -60,6 +60,7 @@ const hourOf = (e: { time_of_day?: string | null; created_at?: string }) => {
 function Painel() {
   const { entries, bills, debts, goals, isLoading } = useFinance();
   const sheet = useRecordSheet();
+  const [chartPeriod, setChartPeriod] = useState<"dia" | "semana" | "mes">("semana");
 
   const today = todayISO();
   const [y, m] = today.split("-");

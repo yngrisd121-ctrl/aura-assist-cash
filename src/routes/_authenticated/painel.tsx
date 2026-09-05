@@ -232,6 +232,105 @@ function Painel() {
         <Stat label="📅 Contas a vencer" value={brl(upcoming.reduce((s, b) => s + Number(b.amount), 0))} />
       </section>
 
+      <section className="rounded-3xl border border-border bg-card p-5 shadow-soft">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="font-display text-lg">💕 Entradas</h2>
+          <PeriodTabs value={chartPeriod} onChange={setChartPeriod} />
+        </div>
+        {incomeChartData.some((d) => d.valor > 0) ? (
+          <div className="mt-4 h-44 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={incomeChartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                <XAxis
+                  dataKey="label"
+                  tickLine={false}
+                  axisLine={false}
+                  interval="preserveStartEnd"
+                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                />
+                <Tooltip
+                  cursor={{ fill: "var(--muted)" }}
+                  formatter={(value: number) => [brl(value), "Entrou"]}
+                  contentStyle={{
+                    borderRadius: 16,
+                    border: "1px solid var(--border)",
+                    background: "var(--card)",
+                    fontSize: 12,
+                  }}
+                />
+                <Bar dataKey="valor" fill="var(--primary)" radius={[8, 8, 0, 0]} maxBarSize={28} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <p className="mt-4 rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            Nenhuma entrada no período. Toque no + para registrar. 💗
+          </p>
+        )}
+      </section>
+
+      <section className="rounded-3xl border border-border bg-card p-5 shadow-soft">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="font-display text-lg">📤 Gastos por categoria</h2>
+          <PeriodTabs value={chartPeriod} onChange={setChartPeriod} />
+        </div>
+        {expenseChartData.length > 0 ? (
+          <div className="mt-4 space-y-3">
+            <div className="h-44 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={expenseChartData}
+                    dataKey="valor"
+                    nameKey="name"
+                    innerRadius={48}
+                    outerRadius={76}
+                    paddingAngle={3}
+                    strokeWidth={0}
+                  >
+                    {expenseChartData.map((_, i) => (
+                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: number) => [brl(value), "Gasto"]}
+                    contentStyle={{
+                      borderRadius: 16,
+                      border: "1px solid var(--border)",
+                      background: "var(--card)",
+                      fontSize: 12,
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <ul className="space-y-1.5 text-xs">
+              {expenseChartData.map((d, i) => (
+                <li key={d.name} className="flex items-center justify-between gap-2">
+                  <span className="flex min-w-0 items-center gap-2 text-muted-foreground">
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ background: CHART_COLORS[i % CHART_COLORS.length] }}
+                    />
+                    <span className="truncate">{d.name}</span>
+                  </span>
+                  <span className="shrink-0 font-semibold">
+                    {brl(d.valor)}{" "}
+                    <span className="font-normal text-muted-foreground">
+                      ({Math.round((d.valor / expenseChartTotal) * 100)}%)
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <p className="mt-4 rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            Nenhum gasto no período. 🌷
+          </p>
+        )}
+      </section>
+
       <Link
         to="/contas"
         className="block rounded-3xl border border-border bg-card p-5 shadow-soft active:scale-[0.99]"

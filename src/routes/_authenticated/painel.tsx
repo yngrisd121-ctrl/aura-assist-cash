@@ -21,8 +21,9 @@ import {
 } from "@/lib/finance";
 import { useRecordSheet } from "@/components/app-shell";
 import { Skeleton } from "@/components/ui/skeleton";
-import { billOccurrences, monthSummary, usePayments } from "@/lib/obligations";
+import { billOccurrences, monthSummary, usePayBill, usePayments } from "@/lib/obligations";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({

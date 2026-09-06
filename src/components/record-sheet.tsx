@@ -343,12 +343,7 @@ export function RecordSheet({
 
                 <Field label="Categoria">
                   <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
-                    {(type === "income"
-                      ? INCOME_CATEGORIES
-                      : type === "saving"
-                        ? SAVING_CATEGORIES
-                        : EXPENSE_CATEGORIES
-                    ).map((c) => (
+                    {categoryList.map((c) => (
                       <button
                         key={c}
                         type="button"
@@ -363,6 +358,20 @@ export function RecordSheet({
                         {c}
                       </button>
                     ))}
+                    <button
+                      type="button"
+                      onClick={() => openCategoryEditor(true)}
+                      className="shrink-0 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground"
+                    >
+                      + Nova categoria
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openCategoryEditor(false)}
+                      className="shrink-0 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground"
+                    >
+                      Editar categorias
+                    </button>
                   </div>
                 </Field>
 

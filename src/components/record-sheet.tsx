@@ -23,12 +23,22 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  useCategories,
+  useDeleteCategory,
   useDeleteRecord,
   useEntries,
+  useSaveCategory,
   useSaveRecord,
   useSavePercent,
+  useSeedCategories,
   type TableName,
 } from "@/lib/db";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { brl, todayISO } from "@/lib/finance";
 import { BILL_TYPES, DEBT_TYPES } from "@/lib/obligations";
 import { cn } from "@/lib/utils";
@@ -104,6 +114,13 @@ export function RecordSheet({
   const defaultPercent = useSavePercent();
   const [percent, setPercent] = useState(defaultPercent);
   const [autoSave, setAutoSave] = useState(false);
+  const [categoryEditor, setCategoryEditor] = useState(false);
+  const [editorFocusNew, setEditorFocusNew] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const { data: categories } = useCategories();
+  const saveCategory = useSaveCategory();
+  const seedCategories = useSeedCategories();
+  const deleteCategory = useDeleteCategory();
 
   const save = useSaveRecord(TABLE[type]);
   const saveEntry = useSaveRecord("entries");
@@ -136,6 +153,21 @@ export function RecordSheet({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, record, initialType, defaultPercent, linkedSaving?.id]);
 
+
+  const catKind = type === "income" ? "income" : type === "saving" ? "saving" : "expense";
+  const defaultCats =
+    catKind === "income" ? INCOME_CATEGORIES : catKind === "saving" ? SAVING_CATEGORIES : EXPENSE_CATEGORIES;
+  const customCats = (categories ?? []).filter((c) => c.kind === catKind);
+  const categoryList = customCats.length ? customCats.map((c) => c.name) : defaultCats;
+
+  const openCategoryEditor = (focusNew: boolean) => {
+    if (!customCats.length) {
+      seedCategories.mutate(defaultCats.map((name) => ({ name, kind: catKind })));
+    }
+    setNewCategory("");
+    setEditorFocusNew(focusNew);
+    setCategoryEditor(true);
+  };
 
   const set = (key: string, value: unknown) => setForm((f) => ({ ...f, [key]: value }));
   const str = (key: string) => (form[key] === undefined || form[key] === null ? "" : String(form[key]));
@@ -343,12 +375,7 @@ export function RecordSheet({
 
                 <Field label="Categoria">
                   <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
-                    {(type === "income"
-                      ? INCOME_CATEGORIES
-                      : type === "saving"
-                        ? SAVING_CATEGORIES
-                        : EXPENSE_CATEGORIES
-                    ).map((c) => (
+                    {categoryList.map((c) => (
                       <button
                         key={c}
                         type="button"
@@ -363,6 +390,20 @@ export function RecordSheet({
                         {c}
                       </button>
                     ))}
+                    <button
+                      type="button"
+                      onClick={() => openCategoryEditor(true)}
+                      className="shrink-0 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground"
+                    >
+                      + Nova categoria
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openCategoryEditor(false)}
+                      className="shrink-0 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground"
+                    >
+                      Editar categorias
+                    </button>
                   </div>
                 </Field>
 
@@ -726,6 +767,66 @@ export function RecordSheet({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={categoryEditor} onOpenChange={setCategoryEditor}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl">Editar categorias</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <Input
+                autoFocus={editorFocusNew}
+                placeholder="Nova categoria"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+              />
+              <Button
+                onClick={() => {
+                  const name = newCategory.trim();
+                  if (!name) return;
+                  saveCategory.mutate(
+                    { name, kind: catKind },
+                    {
+                      onSuccess: () => {
+                        setNewCategory("");
+                        toast.success("Categoria criada");
+                      },
+                      onError: (e: unknown) => toast.error((e as Error).message),
+                    },
+                  );
+                }}
+              >
+                Adicionar
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {customCats.map((c) => (
+                <div key={c.id} className="flex gap-2">
+                  <Input
+                    defaultValue={c.name}
+                    onBlur={(e) => {
+                      const name = e.target.value.trim();
+                      if (!name || name === c.name) return;
+                      saveCategory.mutate({ id: c.id, name, kind: c.kind });
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      deleteCategory.mutate(c.id, {
+                        onSuccess: () => toast.success("Categoria excluída"),
+                      })
+                    }
+                  >
+                    Excluir
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

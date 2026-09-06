@@ -121,3 +121,64 @@ export function useUpdateProfile() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["profile"] }),
   });
 }
+
+export type Category = { id: string; name: string; emoji: string; kind: string };
+
+export function useCategories() {
+  return useQuery({
+    queryKey: ["categories"],
+    queryFn: async (): Promise<Category[]> => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as unknown as Category[];
+    },
+    ...opts,
+  });
+}
+
+export function useSaveCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (record: { id?: string; name: string; kind: string }) => {
+      const { data: auth } = await supabase.auth.getUser();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const query = supabase.from("categories") as any;
+      const { error } = record.id
+        ? await query.update({ name: record.name }).eq("id", record.id)
+        : await query.insert({ name: record.name, kind: record.kind, user_id: auth.user?.id });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),
+  });
+}
+
+export function useSeedCategories() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (rows: { name: string; kind: string }[]) => {
+      if (!rows.length) return;
+      const { data: auth } = await supabase.auth.getUser();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const query = supabase.from("categories") as any;
+      const { error } = await query.insert(
+        rows.map((r) => ({ ...r, user_id: auth.user?.id })),
+      );
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),
+  });
+}
+
+export function useDeleteCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("categories").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),
+  });
+}

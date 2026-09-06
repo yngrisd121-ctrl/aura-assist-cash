@@ -104,6 +104,13 @@ export function RecordSheet({
   const defaultPercent = useSavePercent();
   const [percent, setPercent] = useState(defaultPercent);
   const [autoSave, setAutoSave] = useState(false);
+  const [categoryEditor, setCategoryEditor] = useState(false);
+  const [editorFocusNew, setEditorFocusNew] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const { data: categories } = useCategories();
+  const saveCategory = useSaveCategory();
+  const seedCategories = useSeedCategories();
+  const deleteCategory = useDeleteCategory();
 
   const save = useSaveRecord(TABLE[type]);
   const saveEntry = useSaveRecord("entries");

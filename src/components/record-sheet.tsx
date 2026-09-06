@@ -69,18 +69,19 @@ const TABLE: Record<RecordType, TableName> = {
   reminder: "reminders",
 };
 
-const INCOME_CATEGORIES = ["Venda", "Serviço", "Comissão", "Presente", "Salário", "Outro"];
+const INCOME_CATEGORIES = ["Venda", "Serviço", "Comissão", "Presente", "Salário", "Outros"];
 const EXPENSE_CATEGORIES = [
-  "Mercado",
-  "Casa",
-  "Beleza",
-  "Saúde",
+  "Alimentação",
+  "Moradia",
+  "Contas",
   "Transporte",
+  "Cartão",
+  "Compras",
   "Lazer",
-  "Roupas",
-  "Estudos",
+  "Saúde",
   "Outros",
 ];
+const SAVING_CATEGORIES = ["Reserva de emergência", "Meta", "Investimento", "Outros"];
 const METHODS = ["Pix", "Dinheiro", "Cartão", "Transferência", "Outro"];
 const PERCENTS = [5, 10, 15, 20];
 

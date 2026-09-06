@@ -373,7 +373,18 @@ export function RecordSheet({
                   />
                 </Field>
 
-                <Field label="Categoria">
+                <Field
+                  label="Categoria"
+                  action={
+                    <button
+                      type="button"
+                      onClick={() => openCategoryEditor(false)}
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      ⚙️ Editar categorias
+                    </button>
+                  }
+                >
                   <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
                     {categoryList.map((c) => (
                       <button
@@ -831,12 +842,23 @@ export function RecordSheet({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  action,
+  children,
+}: {
+  label: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-        {label}
-      </Label>
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+          {label}
+        </Label>
+        {action}
+      </div>
       {children}
     </div>
   );

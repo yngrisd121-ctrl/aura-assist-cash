@@ -340,7 +340,12 @@ export function RecordSheet({
 
                 <Field label="Categoria">
                   <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
-                    {(type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map((c) => (
+                    {(type === "income"
+                      ? INCOME_CATEGORIES
+                      : type === "saving"
+                        ? SAVING_CATEGORIES
+                        : EXPENSE_CATEGORIES
+                    ).map((c) => (
                       <button
                         key={c}
                         type="button"

@@ -270,7 +270,10 @@ export function RecordSheet({
                 <button
                   key={t.key}
                   type="button"
-                  onClick={() => setType(t.key)}
+                  onClick={() => {
+                    setType(t.key);
+                    setForm((f) => ({ ...f, category: "" }));
+                  }}
                   className={cn(
                     "flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors",
                     type === t.key

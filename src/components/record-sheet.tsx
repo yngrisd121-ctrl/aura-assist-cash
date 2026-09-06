@@ -69,18 +69,19 @@ const TABLE: Record<RecordType, TableName> = {
   reminder: "reminders",
 };
 
-const INCOME_CATEGORIES = ["Venda", "Serviço", "Comissão", "Presente", "Salário", "Outro"];
+const INCOME_CATEGORIES = ["Venda", "Serviço", "Comissão", "Presente", "Salário", "Outros"];
 const EXPENSE_CATEGORIES = [
-  "Mercado",
-  "Casa",
-  "Beleza",
-  "Saúde",
+  "Alimentação",
+  "Moradia",
+  "Contas",
   "Transporte",
+  "Cartão",
+  "Compras",
   "Lazer",
-  "Roupas",
-  "Estudos",
+  "Saúde",
   "Outros",
 ];
+const SAVING_CATEGORIES = ["Reserva de emergência", "Meta", "Investimento", "Outros"];
 const METHODS = ["Pix", "Dinheiro", "Cartão", "Transferência", "Outro"];
 const PERCENTS = [5, 10, 15, 20];
 
@@ -269,7 +270,10 @@ export function RecordSheet({
                 <button
                   key={t.key}
                   type="button"
-                  onClick={() => setType(t.key)}
+                  onClick={() => {
+                    setType(t.key);
+                    setForm((f) => ({ ...f, category: "" }));
+                  }}
                   className={cn(
                     "flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors",
                     type === t.key
@@ -339,7 +343,12 @@ export function RecordSheet({
 
                 <Field label="Categoria">
                   <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
-                    {(type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map((c) => (
+                    {(type === "income"
+                      ? INCOME_CATEGORIES
+                      : type === "saving"
+                        ? SAVING_CATEGORIES
+                        : EXPENSE_CATEGORIES
+                    ).map((c) => (
                       <button
                         key={c}
                         type="button"

@@ -137,6 +137,21 @@ export function RecordSheet({
   }, [open, record, initialType, defaultPercent, linkedSaving?.id]);
 
 
+  const catKind = type === "income" ? "income" : type === "saving" ? "saving" : "expense";
+  const defaultCats =
+    catKind === "income" ? INCOME_CATEGORIES : catKind === "saving" ? SAVING_CATEGORIES : EXPENSE_CATEGORIES;
+  const customCats = (categories ?? []).filter((c) => c.kind === catKind);
+  const categoryList = customCats.length ? customCats.map((c) => c.name) : defaultCats;
+
+  const openCategoryEditor = (focusNew: boolean) => {
+    if (!customCats.length) {
+      seedCategories.mutate(defaultCats.map((name) => ({ name, kind: catKind })));
+    }
+    setNewCategory("");
+    setEditorFocusNew(focusNew);
+    setCategoryEditor(true);
+  };
+
   const set = (key: string, value: unknown) => setForm((f) => ({ ...f, [key]: value }));
   const str = (key: string) => (form[key] === undefined || form[key] === null ? "" : String(form[key]));
   const num = (key: string) => (form[key] === undefined ? "" : String(form[key]));

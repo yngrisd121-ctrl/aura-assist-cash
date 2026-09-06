@@ -767,6 +767,66 @@ export function RecordSheet({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={categoryEditor} onOpenChange={setCategoryEditor}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl">Editar categorias</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <Input
+                autoFocus={editorFocusNew}
+                placeholder="Nova categoria"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+              />
+              <Button
+                onClick={() => {
+                  const name = newCategory.trim();
+                  if (!name) return;
+                  saveCategory.mutate(
+                    { name, kind: catKind },
+                    {
+                      onSuccess: () => {
+                        setNewCategory("");
+                        toast.success("Categoria criada");
+                      },
+                      onError: (e: unknown) => toast.error((e as Error).message),
+                    },
+                  );
+                }}
+              >
+                Adicionar
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {customCats.map((c) => (
+                <div key={c.id} className="flex gap-2">
+                  <Input
+                    defaultValue={c.name}
+                    onBlur={(e) => {
+                      const name = e.target.value.trim();
+                      if (!name || name === c.name) return;
+                      saveCategory.mutate({ id: c.id, name, kind: c.kind });
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      deleteCategory.mutate(c.id, {
+                        onSuccess: () => toast.success("Categoria excluída"),
+                      })
+                    }
+                  >
+                    Excluir
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
